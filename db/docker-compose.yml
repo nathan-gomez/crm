@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    container_name: postgres-db
+    image: 'postgres-db'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: stage
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    ports:
+      - '1234:5432'
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - '5050:80'
+
+volumes:
+  db-data:
+  pgadmin-data:
