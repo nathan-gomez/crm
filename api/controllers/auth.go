@@ -1,11 +1,15 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/frederick-gomez/go-api/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
+
+//TODO: Fix timestamp return
 
 // @Summary			Returns all users in db
 // @Tags				Auth
@@ -18,7 +22,7 @@ func GetUsers(ctx *gin.Context) {
 	var users []models.User
 	result := models.DB.Find(&users)
 	if result.Error != nil {
-		ctx.IndentedJSON(
+		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			gin.H{"error": result.Error},
 		)
@@ -42,6 +46,20 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
+	var loginUser models.User
+	if result := models.DB.First(&loginUser, models.User{Name: body.User}); result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			ctx.AbortWithStatus(http.StatusNoContent)
+		}
+
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			gin.H{"error": result.Error},
+		)
+	}
+
+	ctx.IndentedJSON(http.StatusOK, loginUser)
+}
 	// result := models.DB.Find(&users)
 	// 	ctx.IndentedJSON(
 	// 		http.StatusInternalServerError,
