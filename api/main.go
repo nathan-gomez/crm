@@ -39,6 +39,7 @@ func main() {
 			auth.GET("/users", controllers.GetUsers)
 			auth.POST("/login", controllers.Login)
 			auth.POST("/create-user", controllers.CreateUser)
+			auth.POST("/check-user", controllers.CheckUsername)
 		}
 	}
 
