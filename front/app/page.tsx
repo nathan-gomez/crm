@@ -1,5 +1,3 @@
 export default function Home() {
-  return (
-    <main className='flex min-h-screen flex-col items-center justify-between p-24'></main>
-  );
+  return <main className='m-4 grow bg-red-500 p-4'>Main</main>;
 }

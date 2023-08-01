@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import './globals.css';
 
@@ -16,11 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang='en'>
+      <body className={`flex max-h-screen ${inter.className}`}>
         <Sidebar />
-
-        {children}
+        <div className='flex shrink-0 grow flex-col'>
+          <Navbar />
+          {children}
+        </div>
       </body>
     </html>
   );

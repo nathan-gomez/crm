@@ -2,19 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --text: #000000;
-  --bg: #ffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #ffff;
-    --bg: #000000;
-  }
-}
-
 body {
-  color: var(--text);
-  background: var(--bg);
+  @apply bg-white
+text-black
+dark:bg-black
+dark:text-neutral-200;
+}
+
+.hover-btn {
+  @apply hover:bg-primary-50
+hover:text-primary-600
+hover:dark:bg-neutral-900
+hover:dark:text-primary-200;
 }
