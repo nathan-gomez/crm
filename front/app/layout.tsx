@@ -22,7 +22,7 @@ export default function RootLayout({
         <Sidebar />
         <div className='flex shrink-0 grow flex-col'>
           <Navbar />
-          {children}
+          <main className='m-4 grow'>{children}</main>
         </div>
       </body>
     </html>

@@ -9,6 +9,10 @@ dark:bg-black
 dark:text-neutral-200;
 }
 
+input {
+  @apply dark:border-neutral-600;
+}
+
 .hover-btn {
   @apply hover:bg-primary-50
 hover:text-primary-600
