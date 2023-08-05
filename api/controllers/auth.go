@@ -6,6 +6,7 @@ import (
 
 	"github.com/frederick-gomez/go-api/models"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -66,7 +67,15 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, loginUser)
+	if hashErr := bcrypt.CompareHashAndPassword([]byte(loginUser.Password), []byte(body.Password)); hashErr != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusUnauthorized,
+			&models.ErrorResponse{Error: "Invalid password"},
+		)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"id": loginUser.Id, "role": loginUser.Role})
 }
 
 // @Summary			Create new user
@@ -112,7 +121,7 @@ func CreateUser(ctx *gin.Context) {
 // @Security 		ApiKeyAuth
 func CheckUsername(ctx *gin.Context) {
 	body := struct {
-		Name string `json:"name"`
+		Name string `json:"name" binding:"required"`
 	}{}
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
