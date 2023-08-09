@@ -37,6 +37,7 @@ func main() {
 		auth := v1.Group("/auth")
 		{
 			auth.POST("/login", controllers.Login)
+			auth.POST("/logout", controllers.Logout)
 			auth.POST("/create-user", controllers.CreateUser)
 			auth.POST("/check-user", controllers.CheckUsername)
 		}

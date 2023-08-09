@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type OkResponse struct {
@@ -19,12 +17,12 @@ type User struct {
 	Username  string    `gorm:"size:500 unique" json:"username"`
 	Password  string    `gorm:"password" json:"password"`
 	Role      string    `gorm:"size:500" json:"role"`
-	CreatedAt time.Time `gorm:"column:created_at type:timestamp" json:"created_at"`
-	UpdatedAt time.Time `gorm:"column:updated_at type:timestamp" json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Session struct {
-	Id        uuid.UUID `gorm:"primary_key" json:"id"`
+	Id        string    `gorm:"primary_key" json:"id"`
 	Username  string    `gorm:"size:500 unique" json:"username"`
 	CreatedAt time.Time `json:"created_at"`
 }

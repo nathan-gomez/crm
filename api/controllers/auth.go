@@ -12,8 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//TODO: Fix timestamp return
-
 // @Summary	Login the user
 // @Tags		Auth
 // @Accept		json
@@ -56,7 +54,7 @@ func Login(ctx *gin.Context) {
 	}
 
 	session := &models.Session{
-		Id:       uuid.New(),
+		Id:       uuid.New().String(),
 		Username: loginUser.Username,
 	}
 
@@ -68,8 +66,48 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("session_token", session.Id.String(), 3600, "/login", "localhost", false, true)
+	ctx.SetCookie("session_token", session.Id, 3600, "/login", "localhost", false, true)
 	ctx.IndentedJSON(http.StatusOK, gin.H{"id": loginUser.Id, "role": loginUser.Role, "name": loginUser.Username})
+}
+
+// @Summary	Logout current session
+// @Tags		Auth
+// @Accept		json
+// @Produce	json
+// @Param		Body	body		controllers.Logout.request	true	" "
+// @Success	200		{object}	models.OkResponse		"OK"
+// @Failure	400		{object}	models.ErrorResponse	" "
+// @Failure	500		{object}	models.ErrorResponse	" "
+// @Router		/auth/logout [post]
+// @Security	ApiKeyAuth
+func Logout(ctx *gin.Context) {
+	type request struct {
+		Userame string `json:"username" binding:"required"`
+	}
+
+	body := request{}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	cookie, err := ctx.Cookie("session_token")
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	result := utils.DB.Table("sessions").Where("username = ?", body.Userame).Delete(&models.Session{Id: cookie})
+	if result.Error != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: result.Error.Error()},
+		)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
 }
 
 // @Summary	Create new user
@@ -107,16 +145,18 @@ func CreateUser(ctx *gin.Context) {
 // @Tags		Auth
 // @Accept		json
 // @Produce	json
-// @Param		Body	body		models.LoginRequest		true	" "
+// @Param		Body	body		controllers.CheckUsername.request		true	" "
 // @Success	200		{string}	string					"OK"
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
 // @Router		/auth/check-user [post]
 // @Security	ApiKeyAuth
 func CheckUsername(ctx *gin.Context) {
-	body := struct {
+	type request struct {
 		Userame string `json:"username" binding:"required"`
-	}{}
+	}
+
+	body := request{}
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
