@@ -21,6 +21,7 @@ func ValidateApiKey() gin.HandlerFunc {
 		ApiKeyHeader := ctx.Request.Header.Get("x-api-key")
 
 		if len(ApiKeyHeader) == 0 || ApiKey != ApiKeyHeader {
+			ctx.Header("error", "Missing x-api-key")
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}
 		ctx.Next()

@@ -4,19 +4,19 @@ import (
 	"github.com/frederick-gomez/go-api/controllers"
 	docs "github.com/frederick-gomez/go-api/docs"
 	"github.com/frederick-gomez/go-api/middleware"
-	"github.com/frederick-gomez/go-api/models"
+	"github.com/frederick-gomez/go-api/utils"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func init() {
-	models.ConnectToDatabase()
+	utils.ConnectToDatabase()
 }
 
 // @securityDefinitions.apikey	ApiKeyAuth
-// @in													header
-// @name												X-API-Key
+// @in							header
+// @name						X-API-Key
 func main() {
 	// gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
@@ -36,7 +36,6 @@ func main() {
 
 		auth := v1.Group("/auth")
 		{
-			auth.GET("/users", controllers.GetUsers)
 			auth.POST("/login", controllers.Login)
 			auth.POST("/create-user", controllers.CreateUser)
 			auth.POST("/check-user", controllers.CheckUsername)
