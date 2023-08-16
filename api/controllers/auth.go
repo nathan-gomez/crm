@@ -66,8 +66,17 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("session_token", session.Id, 3600, "/login", "localhost", false, true)
-	ctx.IndentedJSON(http.StatusOK, gin.H{"id": loginUser.Id, "role": loginUser.Role, "name": loginUser.Username})
+	encryptedSessionId, err := utils.EncryptValue(session.Id)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	ctx.SetCookie("session_token", encryptedSessionId, 3600, "/", "", false, true)
+	ctx.IndentedJSON(http.StatusOK, gin.H{"id": loginUser.Id, "role": loginUser.Role, "username": loginUser.Username})
 }
 
 // @Summary	Logout current session
@@ -82,23 +91,19 @@ func Login(ctx *gin.Context) {
 // @Security	ApiKeyAuth
 func Logout(ctx *gin.Context) {
 	type request struct {
-		Userame string `json:"username" binding:"required"`
+		Username string `json:"username" binding:"required"`
 	}
 
-	body := request{}
+	body := &request{}
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	cookie, err := ctx.Cookie("session_token")
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
-		return
-	}
+	token := ctx.GetString("session_token")
 
-	result := utils.DB.Table("sessions").Where("username = ?", body.Userame).Delete(&models.Session{Id: cookie})
+	result := utils.DB.Table("sessions").Delete(&models.Session{Id: token, Username: body.Username})
 	if result.Error != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -107,6 +112,7 @@ func Logout(ctx *gin.Context) {
 		return
 	}
 
+	ctx.SetCookie("session_token", "", -1, "/", "", false, true)
 	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
 }
 
@@ -121,10 +127,24 @@ func Logout(ctx *gin.Context) {
 // @Router		/auth/create-user [post]
 // @Security	ApiKeyAuth
 func CreateUser(ctx *gin.Context) {
-	body := models.RegisterRequest{}
+	body := &models.RegisterRequest{}
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	var counter int64
+	if result := utils.DB.Table("users").Where("username = ?", body.Username).Count(&counter); result.Error != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: result.Error.Error()},
+		)
+		return
+	}
+
+	if counter > 0 {
+		ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "Username taken"})
 		return
 	}
 
@@ -139,43 +159,4 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	ctx.IndentedJSON(http.StatusCreated, &models.OkResponse{Message: "OK"})
-}
-
-// @Summary	Check availability of username
-// @Tags		Auth
-// @Accept		json
-// @Produce	json
-// @Param		Body	body		controllers.CheckUsername.request		true	" "
-// @Success	200		{string}	string					"OK"
-// @Failure	400		{object}	models.ErrorResponse	" "
-// @Failure	500		{object}	models.ErrorResponse	" "
-// @Router		/auth/check-user [post]
-// @Security	ApiKeyAuth
-func CheckUsername(ctx *gin.Context) {
-	type request struct {
-		Userame string `json:"username" binding:"required"`
-	}
-
-	body := request{}
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	var counter int64
-	if result := utils.DB.Table("users").Where("name = ?", body.Userame).Count(&counter); result.Error != nil {
-		ctx.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: result.Error.Error()},
-		)
-		return
-	}
-
-	if counter > 0 {
-		ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "Username taken"})
-	} else {
-		ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "Username available"})
-	}
-
 }
