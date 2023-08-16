@@ -2,35 +2,13 @@ package middleware
 
 import (
 	"errors"
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/frederick-gomez/go-api/models"
 	"github.com/frederick-gomez/go-api/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
-
-func ValidateApiKey() gin.HandlerFunc {
-	envErr := godotenv.Load(".env")
-	if envErr != nil {
-		log.Fatalf("Error loading env file")
-	}
-
-	ApiKey := os.Getenv("API_KEY")
-
-	return func(ctx *gin.Context) {
-		ApiKeyHeader := ctx.Request.Header.Get("x-api-key")
-
-		if len(ApiKeyHeader) == 0 || ApiKey != ApiKeyHeader {
-			ctx.Header("error", "Missing x-api-key")
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-		}
-		ctx.Next()
-	}
-}
 
 func ValidateSession() gin.HandlerFunc {
 	return func(ctx *gin.Context) {

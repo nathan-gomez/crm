@@ -14,7 +14,7 @@ import (
 
 // @Summary	Login the user
 // @Tags		Auth
-// @Accept		json
+// @Accept	json
 // @Produce	json
 // @Param		Body	body		models.LoginRequest	true	" "
 // @Success	200		{object}	models.User
@@ -22,7 +22,6 @@ import (
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
 // @Router		/auth/login [post]
-// @Security	ApiKeyAuth
 func Login(ctx *gin.Context) {
 	body := models.LoginRequest{}
 
@@ -81,14 +80,13 @@ func Login(ctx *gin.Context) {
 
 // @Summary	Logout current session
 // @Tags		Auth
-// @Accept		json
+// @Accept	json
 // @Produce	json
 // @Param		Body	body		controllers.Logout.request	true	" "
 // @Success	200		{object}	models.OkResponse		"OK"
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
 // @Router		/auth/logout [post]
-// @Security	ApiKeyAuth
 func Logout(ctx *gin.Context) {
 	type request struct {
 		Username string `json:"username" binding:"required"`
@@ -125,7 +123,6 @@ func Logout(ctx *gin.Context) {
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
 // @Router		/auth/create-user [post]
-// @Security	ApiKeyAuth
 func CreateUser(ctx *gin.Context) {
 	body := &models.RegisterRequest{}
 

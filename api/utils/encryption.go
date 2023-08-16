@@ -7,19 +7,14 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 func EncryptValue(message string) (string, error) {
-	envErr := godotenv.Load(".env")
-	if envErr != nil {
-		log.Fatalf("Error loading env file")
+	EncryptionKey, hasValue := os.LookupEnv("ENCRYPTION_KEY")
+	if !hasValue {
+		return "", fmt.Errorf("env ENCRYPTION_KEY not defined")
 	}
-
-	EncryptionKey := os.Getenv("ENCRYPTION_KEY")
 
 	byteMsg := []byte(message)
 
@@ -42,12 +37,10 @@ func EncryptValue(message string) (string, error) {
 }
 
 func DecryptValue(message string) (string, error) {
-	envErr := godotenv.Load(".env")
-	if envErr != nil {
-		log.Fatalf("Error loading env file")
+	EncryptionKey, hasValue := os.LookupEnv("ENCRYPTION_KEY")
+	if !hasValue {
+		return "", fmt.Errorf("env ENCRYPTION_KEY not defined")
 	}
-
-	EncryptionKey := os.Getenv("ENCRYPTION_KEY")
 
 	cipherText, err := base64.StdEncoding.DecodeString(message)
 	if err != nil {
