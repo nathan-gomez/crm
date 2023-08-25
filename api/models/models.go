@@ -13,16 +13,16 @@ type ErrorResponse struct {
 }
 
 type User struct {
-	Id        string    `gorm:"primary_key" json:"id"`
+	Id        string    `gorm:"primary_key"     json:"id"`
 	Username  string    `gorm:"size:500 unique" json:"username"`
-	Password  string    `gorm:"password" json:"password"`
-	Role      string    `gorm:"size:500" json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Password  string    `gorm:"password"        json:"password"`
+	Role      string    `gorm:"size:500"        json:"role"`
+	CreatedAt time.Time `                       json:"created_at"`
+	UpdatedAt time.Time `                       json:"updated_at"`
 }
 
 type Session struct {
-	Id        string    `gorm:"primary_key" json:"id"`
+	Id        string    `gorm:"primary_key"     json:"id"`
 	Username  string    `gorm:"size:500 unique" json:"username"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `                       json:"created_at"`
 }

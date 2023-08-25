@@ -4,12 +4,13 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/frederick-gomez/go-api/models"
-	"github.com/frederick-gomez/go-api/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
+	"github.com/frederick-gomez/go-api/models"
+	"github.com/frederick-gomez/go-api/utils"
 )
 
 // @Summary	Login the user
@@ -75,7 +76,10 @@ func Login(ctx *gin.Context) {
 	}
 
 	ctx.SetCookie("session_token", encryptedSessionId, 3600, "/", "", false, true)
-	ctx.IndentedJSON(http.StatusOK, gin.H{"id": loginUser.Id, "role": loginUser.Role, "username": loginUser.Username})
+	ctx.IndentedJSON(
+		http.StatusOK,
+		gin.H{"id": loginUser.Id, "role": loginUser.Role, "username": loginUser.Username},
+	)
 }
 
 // @Summary	Logout current session
