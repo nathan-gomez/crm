@@ -1,34 +1,26 @@
 package main
 
 import (
-	"log"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/frederick-gomez/go-api/controllers"
 	docs "github.com/frederick-gomez/go-api/docs"
 	"github.com/frederick-gomez/go-api/middleware"
 	"github.com/frederick-gomez/go-api/utils"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func init() {
-	envErr := godotenv.Load(".env")
-	if envErr != nil {
-		log.Fatalf("Error loading env file")
-	}
-
-	utils.ConnectToDatabase()
-}
-
 func main() {
+	utils.ConnectToDatabase()
+	defer utils.DB.Close()
+
 	// gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowOrigins = []string{"http://127.0.0.1:3000"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
 
@@ -39,7 +31,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Base API"
 	docs.SwaggerInfo.Version = "1.0"
 
-	url := ginSwagger.URL("http://localhost" + port + "/swagger/doc.json")
+	url := ginSwagger.URL("http://127.0.0.1" + port + "/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	v1 := router.Group("/v1")
@@ -47,9 +39,9 @@ func main() {
 
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/login", controllers.Login)
-			auth.POST("/logout", middleware.ValidateSession(), controllers.Logout)
-			auth.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
+			auth.POST("/login", middleware.ValidateSession(), controllers.Login)
+			// auth.POST("/logout", middleware.ValidateSession(), controllers.Logout)
+			// auth.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
 		}
 	}
 

@@ -1,20 +1,30 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
-	"time"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
+
+	"github.com/frederick-gomez/go-api/models"
 )
 
-// Make connection to DB
-var DB *gorm.DB
+// Connection to database
+var DB *pgxpool.Pool
 
 func ConnectToDatabase() {
+	var err error
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading env file")
+	}
+
 	connectionString := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -24,25 +34,23 @@ func ConnectToDatabase() {
 		os.Getenv("DB_PORT"),
 	)
 
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold:             time.Second,   // Slow SQL threshold
-			LogLevel:                  logger.Silent, // Log level
-			IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
-			ParameterizedQueries:      false,         // Don't include params in the SQL log
-			Colorful:                  true,          // Disable color
-		},
-	)
-
-	log.Printf("Opening connection to db: %s", connectionString)
-	database, dbErr := gorm.Open(postgres.Open(connectionString), &gorm.Config{
-		Logger: newLogger,
-	})
-
-	if dbErr != nil {
-		log.Fatal("Failed to connect to database")
+	dbpool, err := pgxpool.New(context.Background(), connectionString)
+	if err != nil {
+		log.Fatalf("Unable to create connection pool: %v\n", err)
 	}
 
-	DB = database
+  log.Printf("Connection to database successful in %v", connectionString)
+	DB = dbpool
+}
+
+// Adquire a connection from the database pool
+func GetConn(ctx *gin.Context) *pgxpool.Conn {
+	conn, err := DB.Acquire(context.Background())
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return nil
+	}
+
+	return conn
 }

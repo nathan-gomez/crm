@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 
 	"github.com/frederick-gomez/go-api/models"
 	"github.com/frederick-gomez/go-api/utils"
@@ -24,28 +24,31 @@ import (
 // @Failure	500		{object}	models.ErrorResponse	" "
 // @Router		/auth/login [post]
 func Login(ctx *gin.Context) {
+	var err error
 	body := models.LoginRequest{}
 
-	if err := ctx.ShouldBindJSON(&body); err != nil {
+	if err = ctx.ShouldBindJSON(&body); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	var loginUser models.User
-	if result := utils.DB.First(&loginUser, models.User{Username: body.Username}); result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	loginUser := &models.User{}
+	sql := "SELECT username, password, role FROM users where username = $1;"
+	err = conn.QueryRow(context.Background(), sql, body.Username).Scan(&loginUser.Username, &loginUser.Password, &loginUser.Role)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
 			ctx.AbortWithStatus(http.StatusNoContent)
 			return
 		}
-
-		ctx.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: result.Error.Error()},
-		)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	if hashErr := bcrypt.CompareHashAndPassword([]byte(loginUser.Password), []byte(body.Password)); hashErr != nil {
+	err = bcrypt.CompareHashAndPassword([]byte(loginUser.Password), []byte(body.Password))
+	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusUnauthorized,
 			&models.ErrorResponse{Error: "Invalid password"},
@@ -58,10 +61,13 @@ func Login(ctx *gin.Context) {
 		Username: loginUser.Username,
 	}
 
-	if result := utils.DB.Table("sessions").Create(&session); result.Error != nil {
+	sql = "insert into sessions (id, username) values (@sessionId, @username);"
+	args := &pgx.NamedArgs{"sessionId": session.Id, "username": session.Username}
+	_, err = conn.Exec(context.Background(), sql, args)
+	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: result.Error.Error()},
+			&models.ErrorResponse{Error: err.Error()},
 		)
 		return
 	}
@@ -75,11 +81,9 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
+  loginUser.Password = ""
 	ctx.SetCookie("session_token", encryptedSessionId, 3600, "/", "", false, true)
-	ctx.IndentedJSON(
-		http.StatusOK,
-		gin.H{"id": loginUser.Id, "role": loginUser.Role, "username": loginUser.Username},
-	)
+	ctx.IndentedJSON(http.StatusOK, &loginUser)
 }
 
 // @Summary	Logout current session
