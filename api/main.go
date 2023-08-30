@@ -20,7 +20,7 @@ func main() {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://127.0.0.1:3000"}
+	config.AllowOrigins = []string{"http://localhost:3000"}
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
 
@@ -31,7 +31,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Base API"
 	docs.SwaggerInfo.Version = "1.0"
 
-	url := ginSwagger.URL("http://127.0.0.1" + port + "/swagger/doc.json")
+	url := ginSwagger.URL("http://localhost" + port + "/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	v1 := router.Group("/v1")
@@ -39,9 +39,8 @@ func main() {
 
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/login", middleware.ValidateSession(), controllers.Login)
-			// auth.POST("/logout", middleware.ValidateSession(), controllers.Logout)
-			// auth.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
+			auth.POST("/login", controllers.Login)
+			auth.GET("/logout", middleware.ValidateSession(), controllers.Logout)
 		}
 	}
 

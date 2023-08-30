@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -81,7 +82,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-  loginUser.Password = ""
+	loginUser.Password = ""
 	ctx.SetCookie("session_token", encryptedSessionId, 3600, "/", "", false, true)
 	ctx.IndentedJSON(http.StatusOK, &loginUser)
 }
@@ -96,24 +97,20 @@ func Login(ctx *gin.Context) {
 // @Failure	500		{object}	models.ErrorResponse	" "
 // @Router		/auth/logout [post]
 func Logout(ctx *gin.Context) {
-	type request struct {
-		Username string `json:"username" binding:"required"`
-	}
+  var err error
 
-	body := &request{}
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
-		return
-	}
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
 
 	token := ctx.GetString("session_token")
 
-	result := utils.DB.Table("sessions").Delete(&models.Session{Id: token, Username: body.Username})
-	if result.Error != nil {
+  sql := "delete from sessions where id = @sessionId;"
+  args := &pgx.NamedArgs{"sessionId": &token}
+	_, err = conn.Exec(context.Background(), sql, args)
+	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: result.Error.Error()},
+			&models.ErrorResponse{Error: err.Error()},
 		)
 		return
 	}
