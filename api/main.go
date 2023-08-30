@@ -37,10 +37,11 @@ func main() {
 	v1 := router.Group("/v1")
 	{
 
-		auth := v1.Group("/auth")
+		auth := v1.Group("/users")
 		{
 			auth.POST("/login", controllers.Login)
 			auth.GET("/logout", middleware.ValidateSession(), controllers.Logout)
+			auth.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
 		}
 	}
 

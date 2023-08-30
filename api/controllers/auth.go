@@ -23,7 +23,7 @@ import (
 // @Failure	401		{object}	models.ErrorResponse	" "
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
-// @Router		/auth/login [post]
+// @Router		/users/login [post]
 func Login(ctx *gin.Context) {
 	var err error
 	body := models.LoginRequest{}
@@ -95,17 +95,17 @@ func Login(ctx *gin.Context) {
 // @Success	200		{object}	models.OkResponse		"OK"
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
-// @Router		/auth/logout [post]
+// @Router		/users/logout [post]
 func Logout(ctx *gin.Context) {
-  var err error
+	var err error
 
 	conn := utils.GetConn(ctx)
 	defer conn.Release()
 
 	token := ctx.GetString("session_token")
 
-  sql := "delete from sessions where id = @sessionId;"
-  args := &pgx.NamedArgs{"sessionId": &token}
+	sql := "delete from sessions where id = @sessionId;"
+	args := &pgx.NamedArgs{"sessionId": &token}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
 		ctx.AbortWithStatusJSON(
@@ -127,8 +127,9 @@ func Logout(ctx *gin.Context) {
 // @Success	201		{object}	models.OkResponse		"OK"
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
-// @Router		/auth/create-user [post]
+// @Router		/users/create-user [post]
 func CreateUser(ctx *gin.Context) {
+	var err error
 	body := &models.RegisterRequest{}
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -136,11 +137,28 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	var counter int64
-	if result := utils.DB.Table("users").Where("username = ?", body.Username).Count(&counter); result.Error != nil {
+	hashedPassword, err := bcrypt.GenerateFromPassword(([]byte(body.Password)), 8)
+	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: result.Error.Error()},
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	body.Password = string(hashedPassword)
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	var counter int64
+	sql := "select count(1) from users where username = @username"
+	args := pgx.NamedArgs{"username": body.Username}
+	err = conn.QueryRow(context.Background(), sql, args).Scan(&counter)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
 		)
 		return
 	}
@@ -150,12 +168,13 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	result := utils.DB.Table("users").Create(&body)
-
-	if result.Error != nil {
+	sql = "insert into users (username, password, role) values (@username, @password, @role);"
+	args = pgx.NamedArgs{"username": body.Username, "password": body.Password, "role": body.Role}
+	_, err = conn.Exec(context.Background(), sql, args)
+	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: result.Error.Error()},
+			&models.ErrorResponse{Error: err.Error()},
 		)
 		return
 	}
