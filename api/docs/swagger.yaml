@@ -1,11 +1,4 @@
 definitions:
-  controllers.Logout.request:
-    properties:
-      username:
-        type: string
-    required:
-    - username
-    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -57,7 +50,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth/create-user:
+  /users/create-user:
     post:
       consumes:
       - application/json
@@ -85,8 +78,8 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Create new user
       tags:
-      - Auth
-  /auth/login:
+      - Users
+  /users/login:
     post:
       consumes:
       - application/json
@@ -118,18 +111,11 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Login the user
       tags:
-      - Auth
-  /auth/logout:
-    post:
+      - Users
+  /users/logout:
+    get:
       consumes:
       - application/json
-      parameters:
-      - description: ' '
-        in: body
-        name: Body
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.Logout.request'
       produces:
       - application/json
       responses:
@@ -147,5 +133,5 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Logout current session
       tags:
-      - Auth
+      - Users
 swagger: "2.0"

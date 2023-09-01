@@ -15,7 +15,7 @@ import (
 )
 
 // @Summary	Login the user
-// @Tags		Auth
+// @Tags		Users
 // @Accept	json
 // @Produce	json
 // @Param		Body	body		models.LoginRequest	true	" "
@@ -88,14 +88,13 @@ func Login(ctx *gin.Context) {
 }
 
 // @Summary	Logout current session
-// @Tags		Auth
+// @Tags		Users
 // @Accept	json
 // @Produce	json
-// @Param		Body	body		controllers.Logout.request	true	" "
 // @Success	200		{object}	models.OkResponse		"OK"
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
-// @Router		/users/logout [post]
+// @Router		/users/logout [get]
 func Logout(ctx *gin.Context) {
 	var err error
 
@@ -120,7 +119,7 @@ func Logout(ctx *gin.Context) {
 }
 
 // @Summary	Create new user
-// @Tags		Auth
+// @Tags		Users
 // @Accept		json
 // @Produce	json
 // @Param		Body	body		models.RegisterRequest	true	" "

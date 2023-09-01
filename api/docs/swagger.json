@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/auth/create-user": {
+        "/users/create-user": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -13,7 +13,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Users"
                 ],
                 "summary": "Create new user",
                 "parameters": [
@@ -49,7 +49,7 @@
                 }
             }
         },
-        "/auth/login": {
+        "/users/login": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -58,7 +58,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Users"
                 ],
                 "summary": "Login the user",
                 "parameters": [
@@ -100,8 +100,8 @@
                 }
             }
         },
-        "/auth/logout": {
-            "post": {
+        "/users/logout": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],
@@ -109,20 +109,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Users"
                 ],
                 "summary": "Logout current session",
-                "parameters": [
-                    {
-                        "description": " ",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.Logout.request"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -147,17 +136,6 @@
         }
     },
     "definitions": {
-        "controllers.Logout.request": {
-            "type": "object",
-            "required": [
-                "username"
-            ],
-            "properties": {
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
         "models.ErrorResponse": {
             "type": "object",
             "properties": {
