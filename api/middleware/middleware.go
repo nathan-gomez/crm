@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -15,6 +16,9 @@ import (
 func ValidateSession() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
+		var sql string
+		var args pgx.NamedArgs
+
 		conn := utils.GetConn(ctx)
 		defer conn.Release()
 
@@ -34,13 +38,14 @@ func ValidateSession() gin.HandlerFunc {
 			return
 		}
 
-		// TODO: Handle session expire time
-		sql := "select id from sessions where id = @sessionId;"
-		args := &pgx.NamedArgs{"sessionId": &decryptedSessionId}
-		err = conn.QueryRow(context.Background(), sql, args).Scan(&decryptedSessionId)
+		session := &models.Session{Id: decryptedSessionId}
+
+		sql = "select expiration, user_id from sessions where id = @sessionId;"
+		args = pgx.NamedArgs{"sessionId": &session.Id}
+		err = conn.QueryRow(context.Background(), sql, args).Scan(&session.Expiration, &session.UserId)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				ctx.Header("error", "Session expired")
+				ctx.Header("error", "Invalid session")
 				ctx.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}
@@ -51,7 +56,26 @@ func ValidateSession() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("session_token", decryptedSessionId)
+		if session.Expiration.Before(time.Now()) {
+			sql = "delete from sessions where id = @sessionId;"
+			args = pgx.NamedArgs{"sessionId": &session.Id}
+			_, err = conn.Exec(context.Background(), sql, args)
+			if err != nil {
+				ctx.AbortWithStatusJSON(
+					http.StatusInternalServerError,
+					&models.ErrorResponse{Error: err.Error()},
+				)
+				return
+			}
+
+			ctx.SetCookie("session_token", "", -1, "/", "", false, true)
+			ctx.Header("error", "Session expired")
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		ctx.Set("session_token", session.Id)
+		ctx.Set("user_id", session.UserId)
 		ctx.Next()
 	}
 }

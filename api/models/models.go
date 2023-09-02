@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+const (
+	Admin   = "admin"
+	Usuario = "usuario"
+)
+
 type OkResponse struct {
 	Message string `json:"message"`
 }
@@ -22,7 +27,8 @@ type User struct {
 }
 
 type Session struct {
-	Id        string     `gorm:"primary_key"     json:"id"`
-	Username  string     `gorm:"size:500 unique" json:"username"`
-	CreatedAt *time.Time `                       json:"created_at"`
+	Id         string     `json:"id"`
+	UserId     string     `json:"user_id"`
+	Expiration *time.Time `json:"expiration"`
+	CreatedAt  *time.Time `json:"created_at"`
 }

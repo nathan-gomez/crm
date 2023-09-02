@@ -38,10 +38,11 @@ func main() {
 	{
 
 		auth := v1.Group("/users")
+		users := v1.Group("/users")
 		{
-			auth.POST("/login", controllers.Login)
-			auth.GET("/logout", middleware.ValidateSession(), controllers.Logout)
-			auth.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
+			users.POST("/login", controllers.Login)
+			users.GET("/logout", middleware.ValidateSession(), controllers.Logout)
+			users.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
 		}
 	}
 
