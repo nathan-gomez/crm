@@ -37,7 +37,6 @@ func main() {
 	v1 := router.Group("/v1")
 	{
 
-		auth := v1.Group("/users")
 		users := v1.Group("/users")
 		{
 			users.POST("/login", controllers.Login)
