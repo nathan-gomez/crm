@@ -42,7 +42,7 @@ func main() {
 			users.POST("/login", controllers.Login)
 			users.GET("/logout", middleware.ValidateSession(), controllers.Logout)
 			users.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
-      users.POST("/user-data", controllers.UserData) //TODO: Add apikey middleware
+			users.POST("/user-data", middleware.ValidateApiKey(), controllers.UserData)
 		}
 	}
 

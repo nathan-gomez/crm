@@ -3,7 +3,9 @@ package middleware
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -76,6 +78,29 @@ func ValidateSession() gin.HandlerFunc {
 
 		ctx.Set("session_token", session.Id)
 		ctx.Set("user_id", session.UserId)
+		ctx.Next()
+	}
+}
+
+func ValidateApiKey() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ApiKey, hasValue := os.LookupEnv("API_KEY")
+		if !hasValue {
+			log.Fatalf("API_KEY not defined")
+		}
+
+		reqKey := ctx.GetHeader("x-api-key")
+		if reqKey == "" {
+			ctx.Header("error", "Missing x-api-key")
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		if ApiKey != reqKey {
+			ctx.Header("error", "Invalid ApiKey")
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
 		ctx.Next()
 	}
 }
