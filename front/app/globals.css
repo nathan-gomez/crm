@@ -4,18 +4,10 @@
 
 body {
   @apply bg-white
-text-black
-dark:bg-black
-dark:text-neutral-200;
-}
-
-input {
-  @apply dark:border-neutral-600;
+  text-black
 }
 
 .hover-btn {
   @apply hover:bg-primary-50
-hover:text-primary-600
-hover:dark:bg-neutral-900
-hover:dark:text-primary-200;
+  hover:text-primary-600
 }

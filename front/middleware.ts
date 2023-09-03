@@ -3,21 +3,21 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const hasToken = request.cookies.has('session_token')
+  const { pathname } = request.nextUrl
 
-  if (request.nextUrl.pathname.startsWith('/login')) {
-    if (hasToken) {
-      return NextResponse.redirect(new URL('/', request.url))
+  if (!hasToken) {
+    if (pathname.startsWith('/login')) {
+      return NextResponse.next()
     }
-  }
-
-  if (!hasToken && !request.nextUrl.pathname.startsWith('/login')) {
     return NextResponse.redirect(new URL('/login', request.url))
+  } else {
+    if (!pathname.startsWith('/login')) {
+      return NextResponse.next()
+    }
+    return NextResponse.redirect(new URL('/', request.url))
   }
 }
 
 export const config = {
-  // matcher: [
-  //   '/((?!_next/static|_next/image|favicon.ico).*)',
-  // ]
-  matcher: ["/((?!.*\\.).*)", "/favicon.ico"],
+  matcher: ['/((?!_next|favicon.ico).*)']
 }

@@ -20,7 +20,7 @@ import (
 // @Accept	json
 // @Produce	json
 // @Param		Body	body  		models.LoginRequest	true	" "
-// @Success	200		{object}	models.User
+// @Success	200		{object}	models.OkResponse "OK"
 // @Failure	401		{object}	models.ErrorResponse	" "
 // @Failure	400		{object}	models.ErrorResponse	" "
 // @Failure	500		{object}	models.ErrorResponse	" "
@@ -41,9 +41,9 @@ func Login(ctx *gin.Context) {
 
 	loginUser := &models.User{}
 
-	sql = "SELECT id, username, password, role FROM users where username = @username;"
+	sql = "SELECT id, password FROM users where username = @username;"
 	args = pgx.NamedArgs{"username": req.Username}
-	err = conn.QueryRow(context.Background(), sql, args).Scan(&loginUser.Id, &loginUser.Username, &loginUser.Password, &loginUser.Role)
+	err = conn.QueryRow(context.Background(), sql, args).Scan(&loginUser.Id, &loginUser.Password)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			ctx.AbortWithStatus(http.StatusNoContent)
@@ -85,10 +85,8 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	loginUser.Password = ""
-	loginUser.Id = ""
 	ctx.SetCookie("session_token", encryptedSessionId, 0, "/", "", false, true)
-	ctx.IndentedJSON(http.StatusOK, &loginUser)
+	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
 }
 
 // @Summary	Logout current session
@@ -203,4 +201,54 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	ctx.IndentedJSON(http.StatusCreated, &models.OkResponse{Message: "OK"})
+}
+
+// @Summary	Gets data of current user
+// @Tags	    Users
+// @Accept    json
+// @Produce   json
+// @Param	    Body	body		  controllers.UserData.Request	true	" "
+// @Succes    200		{object}	models.User		"OK"
+// @Failure   500		{object}	models.ErrorResponse	" "
+// @Security	ApiKeyAuth
+// @Param		  x-api-key 	    header	string	true	"ApiKey header"
+// @Router	  /users/user-data [post]
+func UserData(ctx *gin.Context) {
+	type Request struct {
+		Token string `json:"token"`
+	}
+
+	var err error
+	var sql string
+	var args pgx.NamedArgs
+	req := &Request{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	decryptedSessionId, err := utils.DecryptValue(req.Token)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	currentUser := &models.User{}
+
+	sql = "SELECT b.username, b.role FROM sessions a left join users b on a.user_id = b.id where a.id = @sessionId;"
+	args = pgx.NamedArgs{"sessionId": decryptedSessionId}
+	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Username, &currentUser.Role)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &currentUser)
 }

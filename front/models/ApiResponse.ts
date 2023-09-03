@@ -1,9 +1,8 @@
 type DefaultResponse = { message: string } | { error: string; }
 
-type LoginResponse = {
-  id: string;
+type UserDataResponse = {
   role: string;
   username: string
 }
 
-export type { DefaultResponse, LoginResponse }
+export type { DefaultResponse, UserDataResponse }
