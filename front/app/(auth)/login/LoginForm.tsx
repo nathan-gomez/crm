@@ -60,15 +60,13 @@ export default function LoginForm() {
           }
 
           if (data.message === 'OK') {
-              router.replace('/');
+            router.replace('/');
           }
           return;
       }
     } catch (error) {
       updateNotification({ message: getErrorMessage(error), type: 'error' });
       console.log(error);
-    } finally {
-      setIsLoading(false)
     }
   };
 

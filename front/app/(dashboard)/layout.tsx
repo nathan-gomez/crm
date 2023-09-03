@@ -30,7 +30,7 @@ async function getUserData() {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'x-api-token': apiKey
+      'x-api-key': apiKey
     },
     body: JSON.stringify({
       token: sessionToken?.value
