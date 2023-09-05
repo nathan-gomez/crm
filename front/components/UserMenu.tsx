@@ -3,11 +3,33 @@ import getErrorMessage from '@/utils/errorHandler';
 import { useRouter } from 'next/navigation';
 import LogoutIcon from '../icons/LogoutIcon';
 import notificationStore from '@/store/notificationStore';
+import { RefObject, useEffect, useRef } from 'react';
 
-export default function UserMenu() {
+type Props = {
+  setIsMenuOpen: (isOpen: boolean) => void
+  buttonRef: RefObject<HTMLButtonElement>
+}
+
+export default function UserMenu({ setIsMenuOpen, buttonRef }: Props) {
+  const menuRef = useRef<HTMLUListElement>(null);
   const updateUser = userStore((state) => state.actions.updateUser);
   const updateNotification = notificationStore((state) => state.actions.updateNotification);
   const router = useRouter();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && event.target &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const logoutHandler = async () => {
     const url = process.env.NEXT_PUBLIC_API_LOGOUT;
@@ -39,11 +61,11 @@ export default function UserMenu() {
   };
 
   return (
-    <ul>
+    <ul ref={menuRef}>
       <li className='flex'>
         <button onClick={logoutHandler} className='hover-btn flex w-full items-center rounded p-2'>
-          <p className='mr-auto'>Salir</p>
           <LogoutIcon className='h-6' />
+          <p className='pl-3'>Salir</p>
         </button>
       </li>
     </ul>

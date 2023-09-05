@@ -10,4 +10,7 @@ body {
 .hover-btn {
   @apply hover:bg-primary-50
   hover:text-primary-600
+  transition
+  duration-300
+  ease-in-out;
 }
