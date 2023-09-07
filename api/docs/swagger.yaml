@@ -1,9 +1,4 @@
 definitions:
-  controllers.UserData.Request:
-    properties:
-      token:
-        type: string
-    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -36,6 +31,28 @@ definitions:
     - password
     - role
     - username
+    type: object
+  models.Role:
+    properties:
+      id:
+        type: string
+      role:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
     type: object
 info:
   contact: {}
@@ -124,17 +141,11 @@ paths:
       summary: Logout current session
       tags:
       - Users
-  /users/user-data:
-    post:
+  /users/roles:
+    get:
       consumes:
       - application/json
       parameters:
-      - description: ' '
-        in: body
-        name: Body
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.UserData.Request'
       - description: ApiKey header
         in: header
         name: x-api-key
@@ -143,6 +154,38 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Role'
+            type: array
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Return the roles available
+      tags:
+      - Users
+  /users/user-data:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ApiKey header
+        in: header
+        name: x-api-key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
         "500":
           description: ' '
           schema:

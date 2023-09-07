@@ -32,3 +32,8 @@ type Session struct {
 	Expiration *time.Time `json:"expiration"`
 	CreatedAt  *time.Time `json:"created_at"`
 }
+
+type Role struct {
+	Id   string `json:"id,omitempty"`
+	Role string `json:"role,omitempty"`
+}

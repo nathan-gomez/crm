@@ -85,7 +85,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("session_token", encryptedSessionId, 0, "/", "", false, true)
+	ctx.SetCookie("session_token", encryptedSessionId, int((1 * time.Hour).Seconds()), "/", "", false, true)
 	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
 }
 
@@ -207,43 +207,24 @@ func CreateUser(ctx *gin.Context) {
 // @Tags	    Users
 // @Accept    json
 // @Produce   json
-// @Param	    Body	body		  controllers.UserData.Request	true	" "
-// @Succes    200		{object}	models.User		"OK"
+// @Success   200		{object}	models.User		"OK"
 // @Failure   500		{object}	models.ErrorResponse	" "
 // @Security	ApiKeyAuth
 // @Param		  x-api-key 	    header	string	true	"ApiKey header"
-// @Router	  /users/user-data [post]
+// @Router	  /users/user-data [get]
 func UserData(ctx *gin.Context) {
-	type Request struct {
-		Token string `json:"token"`
-	}
-
 	var err error
 	var sql string
 	var args pgx.NamedArgs
-	req := &Request{}
-
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	decryptedSessionId, err := utils.DecryptValue(req.Token)
-	if err != nil {
-		ctx.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			&models.ErrorResponse{Error: err.Error()},
-		)
-		return
-	}
 
 	conn := utils.GetConn(ctx)
 	defer conn.Release()
 
 	currentUser := &models.User{}
+	sessionId := ctx.GetString("session_token")
 
 	sql = "SELECT b.username, b.role FROM sessions a left join users b on a.user_id = b.id where a.id = @sessionId;"
-	args = pgx.NamedArgs{"sessionId": decryptedSessionId}
+	args = pgx.NamedArgs{"sessionId": sessionId}
 	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Username, &currentUser.Role)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
@@ -251,4 +232,37 @@ func UserData(ctx *gin.Context) {
 	}
 
 	ctx.IndentedJSON(http.StatusOK, &currentUser)
+}
+
+// @Summary	Return the roles available
+// @Tags	    Users
+// @Accept    json
+// @Produce   json
+// @Success   200		{object}	[]models.Role		"OK"
+// @Failure   500		{object}	models.ErrorResponse	" "
+// @Security	ApiKeyAuth
+// @Param		  x-api-key 	    header	string	true	"ApiKey header"
+// @Router	  /users/roles [get]
+func GetRoles(ctx *gin.Context) {
+	var err error
+	var sql string
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	sql = "SELECT id, role FROM roles;"
+	rows, err := conn.Query(context.Background(), sql)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	roles, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Role])
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &roles)
 }
