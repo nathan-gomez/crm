@@ -238,7 +238,7 @@ func UserData(ctx *gin.Context) {
 // @Tags	    Users
 // @Accept    json
 // @Produce   json
-// @Success   200		{object}	[]models.Role		"OK"
+// @Success   200		{array}	  []models.Role		"OK"
 // @Failure   500		{object}	models.ErrorResponse	" "
 // @Security	ApiKeyAuth
 // @Param		  x-api-key 	    header	string	true	"ApiKey header"
@@ -271,7 +271,7 @@ func GetRoles(ctx *gin.Context) {
 // @Tags	    Users
 // @Accept    json
 // @Produce   json
-// @Param		  Body	body		  models.DeleteUserRequest	true	" "
+// @Param     id    query     string  true  "User Id"
 // @Success   200		{object}	models.OkResponse "OK"
 // @Failure   500		{object}	models.ErrorResponse  " "
 // @Router	  /users/delete-user [delete]
@@ -279,10 +279,10 @@ func DeleteUser(ctx *gin.Context) {
 	var err error
 	var sql string
 	var args pgx.NamedArgs
-	req := &models.DeleteUserRequest{}
+  userId := ctx.Query("id")
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+	if userId == "" {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: "Id param missing"})
 		return
 	}
 
@@ -308,7 +308,7 @@ func DeleteUser(ctx *gin.Context) {
 	}
 
 	sql = "delete from users where id = @userId;"
-	args = pgx.NamedArgs{"userId": &req.UserId}
+	args = pgx.NamedArgs{"userId": &userId}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
 		ctx.AbortWithStatusJSON(
@@ -325,7 +325,7 @@ func DeleteUser(ctx *gin.Context) {
 // @Tags	    Users
 // @Accept    json
 // @Produce   json
-// @Success   200		{object}	[]controllers.GetUsers.User "OK"
+// @Success   200		{array}	  []controllers.GetUsers.User "OK"
 // @Failure   500		{object}	models.ErrorResponse  " "
 // @Router	  /users/get-users [get]
 func GetUsers(ctx *gin.Context) {

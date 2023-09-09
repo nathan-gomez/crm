@@ -10,13 +10,6 @@ definitions:
       username:
         type: string
     type: object
-  models.DeleteUserRequest:
-    properties:
-      userId:
-        type: string
-    required:
-    - userId
-    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -109,12 +102,11 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ' '
-        in: body
-        name: Body
+      - description: User Id
+        in: query
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/models.DeleteUserRequest'
+        type: string
       produces:
       - application/json
       responses:
@@ -140,7 +132,9 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/controllers.GetUsers.User'
+              items:
+                $ref: '#/definitions/controllers.GetUsers.User'
+              type: array
             type: array
         "500":
           description: ' '
@@ -221,7 +215,9 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Role'
+              items:
+                $ref: '#/definitions/models.Role'
+              type: array
             type: array
         "500":
           description: ' '

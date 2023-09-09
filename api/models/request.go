@@ -10,7 +10,3 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 	Role     string `json:"role"     binding:"required"`
 }
-
-type DeleteUserRequest struct {
-	UserId string `json:"userId" binding:"required"`
-}

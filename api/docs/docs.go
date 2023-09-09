@@ -74,13 +74,11 @@ const docTemplate = `{
                 "summary": "Deletes the user",
                 "parameters": [
                     {
-                        "description": " ",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.DeleteUserRequest"
-                        }
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -117,7 +115,10 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.GetUsers.User"
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/controllers.GetUsers.User"
+                                }
                             }
                         }
                     },
@@ -247,7 +248,10 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Role"
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.Role"
+                                }
                             }
                         }
                     },
@@ -317,17 +321,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.DeleteUserRequest": {
-            "type": "object",
-            "required": [
-                "userId"
-            ],
-            "properties": {
-                "userId": {
                     "type": "string"
                 }
             }
