@@ -1,8 +1,11 @@
-type DefaultResponse = { message: string } | { error: string; }
+export type DefaultResponse = { message: string } | { error: string };
 
-type UserDataResponse = {
+export type UserDataResponse = {
   role: string;
-  username: string
-}
+  username: string;
+};
 
-export type { DefaultResponse, UserDataResponse }
+export type RolesResponse = {
+  id: string;
+  role: string;
+};

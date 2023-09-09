@@ -1,14 +1,14 @@
+import notificationStore from '@/store/notificationStore';
 import userStore from '@/store/userStore';
 import getErrorMessage from '@/utils/errorHandler';
 import { useRouter } from 'next/navigation';
-import LogoutIcon from '../icons/LogoutIcon';
-import notificationStore from '@/store/notificationStore';
 import { RefObject, useEffect, useRef } from 'react';
+import LogoutIcon from '../icons/LogoutIcon';
 
 type Props = {
-  setIsMenuOpen: (isOpen: boolean) => void
-  buttonRef: RefObject<HTMLButtonElement>
-}
+  setIsMenuOpen: (isOpen: boolean) => void;
+  buttonRef: RefObject<HTMLButtonElement>;
+};
 
 export default function UserMenu({ setIsMenuOpen, buttonRef }: Props) {
   const menuRef = useRef<HTMLUListElement>(null);
@@ -18,10 +18,13 @@ export default function UserMenu({ setIsMenuOpen, buttonRef }: Props) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && event.target &&
+      if (
+        menuRef.current &&
+        event.target &&
         !menuRef.current.contains(event.target as Node) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)) {
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsMenuOpen(false);
       }
     };
@@ -41,8 +44,8 @@ export default function UserMenu({ setIsMenuOpen, buttonRef }: Props) {
     try {
       const response = await fetch(url, {
         credentials: 'include',
-        method: 'GET'
-      })
+        method: 'GET',
+      });
 
       if (response.ok) {
         updateUser({
@@ -54,8 +57,8 @@ export default function UserMenu({ setIsMenuOpen, buttonRef }: Props) {
     } catch (error) {
       updateNotification({
         message: getErrorMessage(error),
-        type: 'error'
-      })
+        type: 'error',
+      });
       console.log(getErrorMessage(error));
     }
   };

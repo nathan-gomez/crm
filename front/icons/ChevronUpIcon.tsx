@@ -11,11 +11,7 @@ export default function ChevronUpIcon({ className }: Props) {
       strokeWidth={1.5}
       stroke='currentColor'
       className={className ? className : 'h-5'}>
-      <path
-        strokeLinecap='round'
-        strokeLinejoin='round'
-        d='M4.5 15.75l7.5-7.5 7.5 7.5'
-      />
+      <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 15.75l7.5-7.5 7.5 7.5' />
     </svg>
   );
 }

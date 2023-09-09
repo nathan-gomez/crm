@@ -2,15 +2,15 @@
 
 import MoreIcon from '@/icons/MoreIcon';
 import UsersIcon from '@/icons/UsersIcon';
+import { UserDataResponse } from '@/models/ApiResponse';
 import userStore from '@/store/userStore';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import HomeIcon from '../icons/HomeIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import UserMenu from './UserMenu';
-import { UserDataResponse } from '@/models/ApiResponse';
-import { AnimatePresence, motion } from 'framer-motion'
 
 type Links = {
   icon: JSX.Element;
@@ -26,18 +26,18 @@ const items: Links[] = [
 ];
 
 type Props = {
-  user: UserDataResponse
-}
+  user: UserDataResponse;
+};
 
 export default function Sidebar({ user }: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const updateUser = userStore(state => state.actions.updateUser)
+  const updateUser = userStore((state) => state.actions.updateUser);
 
   useEffect(() => {
-    updateUser(user)
-  }, [])
+    updateUser(user);
+  }, []);
 
   let filteredLinks = items;
   if (user.role !== 'admin') {
@@ -53,7 +53,9 @@ export default function Sidebar({ user }: Props) {
         {filteredLinks.map((item) => (
           <Link href={item.link} key={item.label}>
             <li
-              className={`hover-btn mb-2 flex cursor-pointer items-center rounded p-3 ${pathname === item.link && 'font-semibold text-primary-600'}`}>
+              className={`hover-btn mb-2 flex cursor-pointer items-center rounded p-3 ${
+                pathname === item.link && 'font-semibold text-primary-600'
+              }`}>
               {item.icon}
               <span className='pl-2'>{item.label}</span>
             </li>
@@ -61,7 +63,10 @@ export default function Sidebar({ user }: Props) {
         ))}
       </ul>
       <div className='relative ml-auto mt-auto'>
-        <button ref={buttonRef} onClick={() => setIsMenuOpen(!isMenuOpen)} className='hover-btn flex items-center rounded px-2 py-3 transition-all'>
+        <button
+          ref={buttonRef}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className='hover-btn flex items-center rounded px-2 py-3 transition-all'>
           <span>{user.username}</span>
           <MoreIcon className='h-6' />
         </button>
@@ -75,7 +80,8 @@ export default function Sidebar({ user }: Props) {
               transition={{ duration: 0.2 }}
               className='absolute bottom-full left-full min-w-[230px] rounded border-[1px] bg-white p-4 shadow-md'>
               <UserMenu setIsMenuOpen={setIsMenuOpen} buttonRef={buttonRef} />
-            </motion.div>)}
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </aside>

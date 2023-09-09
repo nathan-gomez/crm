@@ -40,22 +40,25 @@ export default function LoginForm() {
       const response = await fetch(url, {
         credentials: 'include',
         method: 'POST',
-        cache: "no-cache",
-        body: JSON.stringify(params)
-      })
+        cache: 'no-cache',
+        body: JSON.stringify(params),
+      });
 
       switch (response.status) {
         case 204:
           setError('No se encontró un usuario con ese nombre.');
+          setIsLoading(false);
           return;
         case 401:
           setError('Contraseña inválida.');
+          setIsLoading(false);
           return;
         case 200:
-          const data: DefaultResponse = await response.json()
+          const data: DefaultResponse = await response.json();
           if ('error' in data) {
             setError(data.error);
             updateNotification({ message: data.error, type: 'error' });
+            setIsLoading(false);
             return;
           }
 
@@ -105,8 +108,15 @@ export default function LoginForm() {
             className='w-full rounded-lg border bg-transparent py-4 pl-6 pr-14 outline-none transition-all peer focus:border-primary-500'
           />
           <span className='absolute bottom-0 right-0 top-0 flex items-center peer-focus:text-primary-500'>
-            <button type='button' onClick={togglePass} className='rounded-full transition-all hover:text-primary-600'>
-              {!isShowingPassword ? <EyeIcon className='mr-3 h-6' /> : <EyeSlashIcon className='mr-3 h-6' />}
+            <button
+              type='button'
+              onClick={togglePass}
+              className='rounded-full transition-all hover:text-primary-600'>
+              {!isShowingPassword ? (
+                <EyeIcon className='mr-3 h-6' />
+              ) : (
+                <EyeSlashIcon className='mr-3 h-6' />
+              )}
             </button>
           </span>
         </div>

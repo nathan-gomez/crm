@@ -4,13 +4,21 @@
 
 body {
   @apply bg-white
-  text-black
+  text-black;
+}
+
+input,
+textarea {
+  @apply outline-none
+  transition-all
+  focus:border-[1px]
+  focus:border-primary-500;
 }
 
 .hover-btn {
-  @apply hover:bg-primary-50
-  hover:text-primary-600
-  transition
+  @apply transition
   duration-300
-  ease-in-out;
+  ease-in-out
+  hover:bg-primary-50
+  hover:text-primary-600;
 }
