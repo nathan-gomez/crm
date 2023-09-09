@@ -266,3 +266,98 @@ func GetRoles(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusOK, &roles)
 }
+
+// @Summary	Deletes the user
+// @Tags	    Users
+// @Accept    json
+// @Produce   json
+// @Param		  Body	body		  models.DeleteUserRequest	true	" "
+// @Success   200		{object}	models.OkResponse "OK"
+// @Failure   500		{object}	models.ErrorResponse  " "
+// @Router	  /users/delete-user [delete]
+func DeleteUser(ctx *gin.Context) {
+	var err error
+	var sql string
+	var args pgx.NamedArgs
+	req := &models.DeleteUserRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	currentUser := &models.User{Id: ctx.GetString("user_id")}
+
+	sql = "select role from users where id = @userId"
+	args = pgx.NamedArgs{"userId": &currentUser.Id}
+	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Role)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	if currentUser.Role != models.Admin {
+		ctx.AbortWithStatus(http.StatusForbidden)
+		return
+	}
+
+	sql = "delete from users where id = @userId;"
+	args = pgx.NamedArgs{"userId": &req.UserId}
+	_, err = conn.Exec(context.Background(), sql, args)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
+}
+
+// @Summary	Get all users
+// @Tags	    Users
+// @Accept    json
+// @Produce   json
+// @Success   200		{object}	[]controllers.GetUsers.User "OK"
+// @Failure   500		{object}	models.ErrorResponse  " "
+// @Router	  /users/get-users [get]
+func GetUsers(ctx *gin.Context) {
+	var err error
+	var sql string
+
+	type User struct {
+		Id         string     `json:"id,omitempty"`
+		Username   string     `json:"username,omitempty"`
+		Role       string     `json:"role,omitempty"`
+		Created_At *time.Time `json:"created_at,omitempty"`
+	}
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	sql = "select id, username, role, created_at from users;"
+	rows, err := conn.Query(context.Background(), sql)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+	defer rows.Close()
+
+	users, err := pgx.CollectRows(rows, pgx.RowToStructByName[User])
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &users)
+}

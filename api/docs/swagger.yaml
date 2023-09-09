@@ -1,4 +1,22 @@
 definitions:
+  controllers.GetUsers.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  models.DeleteUserRequest:
+    properties:
+      userId:
+        type: string
+    required:
+    - userId
+    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -84,6 +102,51 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Create new user
+      tags:
+      - Users
+  /users/delete-user:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OkResponse'
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Deletes the user
+      tags:
+      - Users
+  /users/get-users:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.GetUsers.User'
+            type: array
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get all users
       tags:
       - Users
   /users/login:
