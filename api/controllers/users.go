@@ -274,17 +274,11 @@ func GetRoles(ctx *gin.Context) {
 // @Param     id    query     string  true  "User Id"
 // @Success   200		{object}	models.OkResponse "OK"
 // @Failure   500		{object}	models.ErrorResponse  " "
-// @Router	  /users/delete-user [delete]
+// @Router	  /users/delete-user/{id} [delete]
 func DeleteUser(ctx *gin.Context) {
 	var err error
 	var sql string
 	var args pgx.NamedArgs
-  userId := ctx.Query("id")
-
-	if userId == "" {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: "Id param missing"})
-		return
-	}
 
 	conn := utils.GetConn(ctx)
 	defer conn.Release()
@@ -307,6 +301,7 @@ func DeleteUser(ctx *gin.Context) {
 		return
 	}
 
+	userId := ctx.Param("id")
 	sql = "delete from users where id = @userId;"
 	args = pgx.NamedArgs{"userId": &userId}
 	_, err = conn.Exec(context.Background(), sql, args)

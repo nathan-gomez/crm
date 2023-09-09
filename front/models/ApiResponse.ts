@@ -9,3 +9,10 @@ export type RolesResponse = {
   id: string;
   role: string;
 };
+
+export type UsersResponse = {
+  id: string
+  role: string
+  username: string
+  created_at: string
+}
