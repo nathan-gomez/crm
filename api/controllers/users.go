@@ -356,3 +356,75 @@ func GetUsers(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusOK, &users)
 }
+
+// @Summary	Edit a user's info
+// @Tags	    Users
+// @Accept    json
+// @Produce   json
+// @Param		  Body	body		  models.EditUserRequest	true	" "
+// @Success   200		{object}	models.OkResponse "OK"
+// @Failure   500		{object}	models.ErrorResponse  " "
+// @Router	  /users/edit-user [put]
+func EditUser(ctx *gin.Context) {
+	var err error
+	var sql string
+	var args pgx.NamedArgs
+	req := &models.EditUserRequest{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	currentUser := &models.User{Id: ctx.GetString("user_id")}
+
+	sql = "select role from users where id = @userId"
+	args = pgx.NamedArgs{"userId": &currentUser.Id}
+	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Role)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	if currentUser.Role != models.Admin {
+		ctx.AbortWithStatus(http.StatusForbidden)
+		return
+	}
+
+	// counter := 0
+	//
+	// sql = "select count(1) from users where username = @username"
+	// args = pgx.NamedArgs{"username": req.Username}
+	// err = conn.QueryRow(context.Background(), sql, args).Scan(&counter)
+	// if err != nil {
+	// 	ctx.AbortWithStatusJSON(
+	// 		http.StatusInternalServerError,
+	// 		&models.ErrorResponse{Error: err.Error()},
+	// 	)
+	// 	return
+	// }
+  //
+	// if counter > 0 {
+	// 	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "Username taken"})
+	// 	return
+	// }
+
+	sql = "update users set username = @username, role = @role, updated_at = now() where id = @id;"
+  args = pgx.NamedArgs{"id": &req.Id, "username": &req.Username, "role": &req.Role}
+	_, err = conn.Exec(context.Background(), sql, args)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
+}

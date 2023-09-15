@@ -46,6 +46,7 @@ func main() {
 			users.GET("/roles", middleware.ValidateSession(), middleware.ValidateApiKey(), controllers.GetRoles)
       users.DELETE("/delete-user/:id", middleware.ValidateSession(), controllers.DeleteUser)
 			users.GET("/get-users", middleware.ValidateSession(), controllers.GetUsers)
+			users.PUT("/edit-user", middleware.ValidateSession(), controllers.EditUser)
 		}
 	}
 

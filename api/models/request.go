@@ -10,3 +10,9 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 	Role     string `json:"role"     binding:"required"`
 }
+
+type EditUserRequest struct {
+	Id       string `json:"id"       binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Role     string `json:"role"     binding:"required"`
+}

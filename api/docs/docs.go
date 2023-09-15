@@ -60,7 +60,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/delete-user": {
+        "/users/delete-user/{id}": {
             "delete": {
                 "consumes": [
                     "application/json"
@@ -79,6 +79,45 @@ const docTemplate = `{
                         "name": "id",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OkResponse"
+                        }
+                    },
+                    "500": {
+                        "description": " ",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/edit-user": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Edit a user's info",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.EditUserRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -314,6 +353,25 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EditUserRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "role",
+                "username"
+            ],
+            "properties": {
                 "id": {
                     "type": "string"
                 },
