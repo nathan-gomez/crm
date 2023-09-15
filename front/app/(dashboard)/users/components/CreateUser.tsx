@@ -9,9 +9,11 @@ import { FormEvent, useRef, useState } from 'react';
 
 type Props = {
   roles: RolesResponse[];
+  getUsers: () => Promise<void>;
+  closeModal: () => void;
 };
 
-export default function CreateUser({ roles }: Props) {
+export default function CreateUser({ roles, getUsers, closeModal }: Props) {
   const updateNotification = notificationStore((state) => state.actions.updateNotification);
   const userRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
@@ -55,9 +57,9 @@ export default function CreateUser({ roles }: Props) {
         }
 
         if (data.message === 'OK') {
+          await getUsers();
           updateNotification({ message: 'Usuario creado exitosamente', type: 'success' });
-          userRef.current!.value = '';
-          passRef.current!.value = '';
+          closeModal();
           return;
         }
       }
@@ -69,16 +71,16 @@ export default function CreateUser({ roles }: Props) {
     }
   };
   return (
-    <form onSubmit={submitHandler}>
-      <div className='mb-4 flex items-center justify-end'>
+    <form onSubmit={submitHandler} className='pt-3'>
+      <div className='mb-2 flex items-center justify-end'>
         <label htmlFor='username' className='w-[130px] font-bold pr-6'>
-          Nombre de usuario
+          Usuario
         </label>
         <input
           ref={userRef}
           id='username'
           type='text'
-          className='w-full rounded-lg border bg-transparent flex-1 py-2 px-6 peer'
+          className='w-full rounded border bg-transparent flex-1 py-1 px-4'
           required
         />
       </div>
@@ -94,7 +96,7 @@ export default function CreateUser({ roles }: Props) {
             id='pass'
             ref={passRef}
             required
-            className='w-full rounded-lg border bg-transparent py-2 px-6 peer'
+            className='w-full rounded border bg-transparent py-1 pl-4 pr-10 peer'
           />
           <span className='absolute bottom-0 right-0 top-0 flex items-center peer-focus:text-primary-500'>
             <button
@@ -111,16 +113,16 @@ export default function CreateUser({ roles }: Props) {
         </div>
       </div>
 
-      <div className='mb-2 py-2 flex items-center'>
-        <label htmlFor='roles' className='w-[130px] block font-bold '>
-          Tipo :
+      <div className='flex items-center'>
+        <label htmlFor='roles' className='w-[130px] shrink-0 block font-bold '>
+          Tipo
         </label>
-        <div className='relative'>
+        <div className='relative w-full'>
           <select
             ref={roleRef}
             name='roles'
             id='roles-select'
-            className='relative bg-transparent min-w-[200px] pl-2 z-20 pr-8 py-2 border outline-none focus:border-primary-500 appearance-none rounded-lg cursor-pointer capitalize'>
+            className='relative bg-transparent w-full min-w-[200px] pl-2 z-20 pr-8 py-1 border outline-none focus:border-primary-500 appearance-none rounded cursor-pointer capitalize'>
             {roles.map((role) => (
               <option key={role.id} value={role.role}>
                 {role.role}
@@ -133,12 +135,23 @@ export default function CreateUser({ roles }: Props) {
         </div>
       </div>
 
-      <button
-        type='submit'
-        disabled={isLoading}
-        className='w-full rounded border-[1px] border-primary-600 bg-primary-600 p-3 text-white transition-all hover:bg-transparent hover:text-primary-600 font-medium'>
-        {!isLoading ? 'Crear Usuario' : <LoadingIcon className='mx-auto h-6' />}
-      </button>
+      <div className='flex items-center mt-6'>
+        <button className='ml-auto hover-btn secondary-btn' onClick={closeModal} type='button'>
+          Cancelar
+        </button>
+        <button
+          disabled={isLoading}
+          className='ml-2 hover-btn primary-btn flex items-center'
+          type='submit'>
+          {!isLoading ? (
+            'Crear Usuario'
+          ) : (
+            <>
+              Cargando <LoadingIcon className='h-6 ml-2' />
+            </>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

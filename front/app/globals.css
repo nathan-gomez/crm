@@ -18,7 +18,29 @@ textarea {
 .hover-btn {
   @apply transition
   duration-300
-  ease-in-out
-  hover:bg-primary-50
-  hover:text-primary-600;
+  ease-in-out;
+}
+
+.primary-btn {
+  @apply rounded
+  border-[1px]
+  border-primary-600
+  bg-primary-600
+  px-2 py-1
+  font-medium
+  text-white
+  hover:border-primary-800
+  hover:bg-primary-800;
+}
+
+.secondary-btn {
+  @apply rounded
+  border-[1px]
+  border-gray-500
+  bg-transparent
+  px-2
+  py-1 font-medium
+  text-gray-500
+  hover:bg-gray-500
+  hover:text-white;
 }

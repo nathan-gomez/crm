@@ -51,7 +51,7 @@ export default function Notification() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className={`fixed bottom-5 right-0 mr-8 min-w-[300px] max-w-[700px] rounded-md border-l-4 ${getTypeClass(
+          className={`fixed z-50 bottom-5 right-0 mr-8 min-w-[300px] max-w-[700px] rounded-md border-l-4 ${getTypeClass(
             type
           )}`}>
           <div className='flex w-full items-center justify-between p-2'>

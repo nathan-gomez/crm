@@ -11,8 +11,8 @@ export type RolesResponse = {
 };
 
 export type UsersResponse = {
-  id: string
-  role: string
-  username: string
-  created_at: string
-}
+  id: string;
+  role: string;
+  username: string;
+  created_at: string;
+};
