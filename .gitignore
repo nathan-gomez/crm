@@ -6,3 +6,5 @@ front/.env
 front/node_modules
 front/.next
 front/next-env.d.ts
+api/tmp
+api/.air.toml

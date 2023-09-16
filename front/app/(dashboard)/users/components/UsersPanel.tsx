@@ -55,7 +55,7 @@ export default function UsersPanel({ roles }: Props) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [updateNotification]);
 
   useEffect(() => {
     (async () => {
@@ -93,7 +93,7 @@ export default function UsersPanel({ roles }: Props) {
                     </td>
                     <td className='mx-auto py-2 px-4 border-b'>
                       {user && user.username !== currentUsername && (
-                        <>
+                        <div className='flex justify-center'>
                           <button
                             onClick={() => setEditFormData(user)}
                             className='mr-2 hover:text-yellow-500 transition-all'>
@@ -104,7 +104,7 @@ export default function UsersPanel({ roles }: Props) {
                             className='hover:text-red-500 transition-all'>
                             <DeleteIcon />
                           </button>
-                        </>
+                        </div>
                       )}
                     </td>
                   </tr>

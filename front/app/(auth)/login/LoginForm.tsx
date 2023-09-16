@@ -75,9 +75,9 @@ export default function LoginForm() {
 
   return (
     <form action='post' onSubmit={loginHandler} className='w-full max-w-lg'>
-      <div className='mb-6'>
-        <label htmlFor='user' className='mb-2 block font-medium'>
-          Nombre de usuario
+      <div className='mb-2'>
+        <label htmlFor='user' className='mb-1 block font-medium'>
+          Nombre de Usuario
         </label>
         <div className='relative'>
           <input
@@ -86,7 +86,7 @@ export default function LoginForm() {
             id='user'
             ref={userRef}
             required
-            className='w-full rounded-lg peer border bg-transparent py-4 pl-6 pr-14 outline-none transition-all focus:border-primary-500'
+            className='w-full rounded-lg peer border bg-transparent py-2 pl-6 pr-14 outline-none transition-all focus:border-primary-500'
           />
           <span className='absolute bottom-0 right-0 top-0 flex items-center peer-focus:text-primary-500'>
             <UserIcon className='mr-3 h-6' />
@@ -94,8 +94,8 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <div className='mb-8'>
-        <label htmlFor='pass' className='mb-2 block font-medium'>
+      <div className='mb-6'>
+        <label htmlFor='pass' className='mb-1 block font-medium'>
           Contraseña
         </label>
         <div className='relative'>
@@ -105,7 +105,7 @@ export default function LoginForm() {
             id='pass'
             ref={passRef}
             required
-            className='w-full rounded-lg border bg-transparent py-4 pl-6 pr-14 outline-none transition-all peer focus:border-primary-500'
+            className='w-full rounded-lg border bg-transparent py-2 pl-6 pr-14 outline-none transition-all peer focus:border-primary-500'
           />
           <span className='absolute bottom-0 right-0 top-0 flex items-center peer-focus:text-primary-500'>
             <button

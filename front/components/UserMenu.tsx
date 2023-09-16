@@ -32,7 +32,7 @@ export default function UserMenu({ setIsMenuOpen, buttonRef }: Props) {
     document.addEventListener('mousedown', handleClickOutside);
 
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [buttonRef, setIsMenuOpen]);
 
   const logoutHandler = async () => {
     const url = process.env.NEXT_PUBLIC_API_LOGOUT;

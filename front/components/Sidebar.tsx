@@ -37,7 +37,7 @@ export default function Sidebar({ user }: Props) {
 
   useEffect(() => {
     updateUser(user);
-  }, []);
+  }, [updateUser, user]);
 
   let filteredLinks = items;
   if (user.role !== 'admin') {

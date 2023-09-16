@@ -21,7 +21,7 @@ export default function Modal({ children, closeModal, title }: Props) {
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, []);
+  }, [closeModal]);
 
   return (
     <motion.div

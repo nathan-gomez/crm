@@ -35,12 +35,12 @@ export default function Notification() {
     if (message) {
       timeout = setTimeout(() => {
         updateNotification({ type: '', message: '' });
-      }, 7000);
+      }, 4000);
     }
     return () => {
       clearTimeout(timeout);
     };
-  }, [message]);
+  }, [message, updateNotification]);
 
   return (
     <AnimatePresence>

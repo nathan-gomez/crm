@@ -29,7 +29,6 @@ async function getUserData() {
 
   const response = await fetch(url, {
     method: 'GET',
-    cache: 'no-cache',
     headers: {
       'x-api-key': apiKey,
       Cookie: cookies().toString(),
