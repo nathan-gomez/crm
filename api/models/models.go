@@ -34,6 +34,15 @@ type Session struct {
 }
 
 type Role struct {
-	Id   string `json:"id,omitempty"`
+	Id   int32  `json:"id,omitempty"`
 	Role string `json:"role,omitempty"`
+}
+
+type Cliente struct {
+	Id         int32   `json:"id,omitempty"`
+	Nombre     string  `json:"nombre"`
+	Tipo       *string `json:"tipo"`
+	Ruc        *string `json:"ruc"`
+	NroTel     *string `json:"nro_tel"`
+	Comentario *string `json:"comentario"`
 }

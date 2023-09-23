@@ -24,7 +24,7 @@ func main() {
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
 
-	port := ":8080"
+	port := ":6969"
 
 	docs.SwaggerInfo.BasePath = "/v1"
 	docs.SwaggerInfo.Host = "http://localhost" + port
@@ -44,9 +44,16 @@ func main() {
 			users.POST("/create-user", middleware.ValidateSession(), controllers.CreateUser)
 			users.GET("/user-data", middleware.ValidateSession(), middleware.ValidateApiKey(), controllers.UserData)
 			users.GET("/roles", middleware.ValidateSession(), middleware.ValidateApiKey(), controllers.GetRoles)
-      users.DELETE("/delete-user/:id", middleware.ValidateSession(), controllers.DeleteUser)
+			users.DELETE("/delete-user/:id", middleware.ValidateSession(), controllers.DeleteUser)
 			users.GET("/get-users", middleware.ValidateSession(), controllers.GetUsers)
 			users.PUT("/edit-user", middleware.ValidateSession(), controllers.EditUser)
+		}
+
+		clients := v1.Group("/clientes")
+		{
+			clients.POST("/crear-cliente", controllers.AddClient)
+			clients.GET("/cliente/:id", controllers.GetClient)
+			clients.PUT("/actualizar-cliente", controllers.UpdateClient)
 		}
 	}
 

@@ -397,24 +397,6 @@ func EditUser(ctx *gin.Context) {
 		return
 	}
 
-	// counter := 0
-	//
-	// sql = "select count(1) from users where username = @username"
-	// args = pgx.NamedArgs{"username": req.Username}
-	// err = conn.QueryRow(context.Background(), sql, args).Scan(&counter)
-	// if err != nil {
-	// 	ctx.AbortWithStatusJSON(
-	// 		http.StatusInternalServerError,
-	// 		&models.ErrorResponse{Error: err.Error()},
-	// 	)
-	// 	return
-	// }
-  //
-	// if counter > 0 {
-	// 	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "Username taken"})
-	// 	return
-	// }
-
 	sql = "update users set username = @username, role = @role, updated_at = now() where id = @id;"
   args = pgx.NamedArgs{"id": &req.Id, "username": &req.Username, "role": &req.Role}
 	_, err = conn.Exec(context.Background(), sql, args)

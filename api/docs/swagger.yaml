@@ -10,6 +10,37 @@ definitions:
       username:
         type: string
     type: object
+  models.AddClientRequest:
+    properties:
+      comentario:
+        type: string
+      nombre:
+        type: string
+      nro_tel:
+        type: string
+      ruc:
+        type: string
+      tipo:
+        type: string
+    required:
+    - nombre
+    - tipo
+    type: object
+  models.Cliente:
+    properties:
+      comentario:
+        type: string
+      id:
+        type: integer
+      nombre:
+        type: string
+      nro_tel:
+        type: string
+      ruc:
+        type: string
+      tipo:
+        type: string
+    type: object
   models.EditUserRequest:
     properties:
       id:
@@ -59,7 +90,7 @@ definitions:
   models.Role:
     properties:
       id:
-        type: string
+        type: integer
       role:
         type: string
     type: object
@@ -81,6 +112,88 @@ definitions:
 info:
   contact: {}
 paths:
+  /clientes/actualizar-cliente:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Cliente'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OkResponse'
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Updates a clients info
+      tags:
+      - Clients
+  /clientes/cliente/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Client Id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Cliente'
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Gets data of a client
+      tags:
+      - Clients
+  /clientes/crear-cliente:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddClientRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OkResponse'
+        "400":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Creates a new client
+      tags:
+      - Clients
   /users/create-user:
     post:
       consumes:
