@@ -112,6 +112,28 @@ definitions:
 info:
   contact: {}
 paths:
+  /clientes:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.Cliente'
+              type: array
+            type: array
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Gets all clients
+      tags:
+      - Clients
   /clientes/actualizar-cliente:
     put:
       consumes:
@@ -192,6 +214,30 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Creates a new client
+      tags:
+      - Clients
+  /clientes/eliminar-cliente/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Client Id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OkResponse'
+        "500":
+          description: ' '
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Deletes a client
       tags:
       - Clients
   /users/create-user:

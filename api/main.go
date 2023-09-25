@@ -50,10 +50,13 @@ func main() {
 		}
 
 		clients := v1.Group("/clientes")
+		clients.Use(middleware.ValidateSession())
 		{
+			clients.GET("/", controllers.GetAllClients)
 			clients.POST("/crear-cliente", controllers.AddClient)
 			clients.GET("/cliente/:id", controllers.GetClient)
 			clients.PUT("/actualizar-cliente", controllers.UpdateClient)
+			clients.DELETE("/eliminar-cliente/:id", controllers.DeleteClient)
 		}
 	}
 

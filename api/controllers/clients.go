@@ -119,3 +119,65 @@ func UpdateClient(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
 }
+
+// @Summary	  Gets all clients
+// @Tags	    Clients
+// @Accept    json
+// @Produce   json
+// @Success   200		{array}	  []models.Cliente  "OK"
+// @Failure   500		{object}	models.ErrorResponse	" "
+// @Router	  /clientes  [get]
+func GetAllClients(ctx *gin.Context) {
+	var err error
+	var sql string
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	sql = "SELECT id, nombre FROM clientes order by id desc;"
+	rows, err := conn.Query(context.Background(), sql)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	clients, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.ClientsResponse])
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &clients)
+}
+
+// @Summary	Deletes a client
+// @Tags	    Clients
+// @Accept    json
+// @Produce   json
+// @Param     id    query     string  true  "Client Id"
+// @Success   200		{object}	models.OkResponse "OK"
+// @Failure   500		{object}	models.ErrorResponse  " "
+// @Router	  /clientes/eliminar-cliente/{id} [delete]
+func DeleteClient(ctx *gin.Context) {
+	var err error
+	var sql string
+	var args pgx.NamedArgs
+
+	conn := utils.GetConn(ctx)
+	defer conn.Release()
+
+	clientId := ctx.Param("id")
+	sql = "delete from clientes where id = @clientId;"
+	args = pgx.NamedArgs{"clientId": &clientId}
+	_, err = conn.Exec(context.Background(), sql, args)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			&models.ErrorResponse{Error: err.Error()},
+		)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, &models.OkResponse{Message: "OK"})
+}
