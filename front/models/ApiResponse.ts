@@ -16,3 +16,12 @@ export type UsersResponse = {
   username: string;
   created_at: string;
 };
+
+export type ClientResponse = {
+  id: number;
+  nombre: string;
+  tipo?: string;
+  ruc?: string;
+  nro_tel?: string;
+  comentario?: string;
+};
