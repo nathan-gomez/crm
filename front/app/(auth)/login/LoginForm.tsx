@@ -75,7 +75,8 @@ export default function LoginForm() {
 
   return (
     <form action='post' onSubmit={loginHandler} className='w-full max-w-lg'>
-      <div className='mb-2'>
+      <h1 className='font-semibold text-3xl'>Inicio de Sesión</h1>
+      <div className='mb-2 mt-10'>
         <label htmlFor='user' className='mb-1 block font-medium'>
           Nombre de Usuario
         </label>

@@ -32,11 +32,11 @@ export default async function UsersPage() {
   const data: RolesResponse[] = await getRoles();
 
   return (
-    <div className='mx-8 py-6 min-h-screen'>
-      <h1 className='text-xl py-4 font-semibold'>Usuarios</h1>
-      <div className='p-8 h-full max-w-6xl border-[1px] border-neutral-200 shadow mx-auto'>
+    <>
+      <h1 className='mx-8 mt-6 text-xl font-semibold text-gray-800'>Usuarios</h1>
+      <div className='mx-6 my-8 max-w-6xl border-[1px] border-neutral-200 shadow lg:mx-auto'>
         <UsersPanel roles={data} />
       </div>
-    </div>
+    </>
   );
 }

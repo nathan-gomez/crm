@@ -1,6 +1,8 @@
 'use client';
 
+import ClientIcon from '@/icons/ClientIcon';
 import MoreIcon from '@/icons/MoreIcon';
+import ReportIcon from '@/icons/ReportIcon';
 import UsersIcon from '@/icons/UsersIcon';
 import { UserDataResponse } from '@/models/ApiResponse';
 import userStore from '@/store/userStore';
@@ -21,6 +23,7 @@ type Links = {
 
 const items: Links[] = [
   { icon: <HomeIcon className='h-6' />, label: 'Inicio', link: '/' },
+  { icon: <ClientIcon className='h-6' />, label: 'Clientes', link: '/clientes' },
   { icon: <UsersIcon className='h-6' />, label: 'Usuarios', link: '/users', adminOnly: true },
   { icon: <SettingsIcon className='h-6' />, label: 'Ajustes', link: '/settings' },
 ];
@@ -53,7 +56,7 @@ export default function Sidebar({ user }: Props) {
         {filteredLinks.map((item) => (
           <Link href={item.link} key={item.label}>
             <li
-              className={`hover-btn mb-2 flex cursor-pointer items-center rounded p-3 ${
+              className={`hover-btn hover:text-primary-500 flex cursor-pointer items-center rounded p-3 ${
                 pathname === item.link && 'font-semibold text-primary-600'
               }`}>
               {item.icon}

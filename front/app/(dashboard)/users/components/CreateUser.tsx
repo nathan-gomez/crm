@@ -80,6 +80,7 @@ export default function CreateUser({ roles, getUsers, closeModal }: Props) {
           ref={userRef}
           id='username'
           type='text'
+          autoFocus
           className='w-full rounded border bg-transparent flex-1 py-1 px-4'
           required
         />

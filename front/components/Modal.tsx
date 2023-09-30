@@ -30,7 +30,9 @@ export default function Modal({ children, closeModal, title }: Props) {
       exit={{ opacity: 0 }}
       ref={backdropRef}
       className='absolute flex items-center justify-center top-0 bottom-0 left-0 right-0 z-20 bg-black/20'>
-      <div ref={modalRef} className='px-6 pb-6 bg-white rounded min-w-[450px]'>
+      <div
+        ref={modalRef}
+        className='px-6 pb-6 bg-white rounded min-w-[450px] md:min-w-[550px] lg:min-w-[700px]'>
         <div className='flex items-center my-4'>
           <h1 className='font-semibold text-xl text-gray-800'>{title}</h1>
           <button

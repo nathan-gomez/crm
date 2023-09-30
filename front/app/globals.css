@@ -44,3 +44,28 @@ textarea {
   hover:bg-gray-500
   hover:text-white;
 }
+
+/* Define color variables */
+:root {
+  --thumb-color: #888;
+  --track-color: #f1f1f1;
+}
+
+/* For Webkit browsers (Chrome, Safari, etc.) */
+::-webkit-scrollbar {
+  width: 10px; /* Set the width of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--thumb-color); /* Use the variable for thumb color */
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--track-color); /* Use the variable for track color */
+}
+
+* {
+  /* For Firefox */
+  scrollbar-color: var(--thumb-color) var(--track-color);
+  scrollbar-width: thin;
+}

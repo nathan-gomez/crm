@@ -73,7 +73,7 @@ export default function ClientsList() {
 
   return (
     <>
-      <div className='p-4'>
+      <div className='p-6'>
         <div className='flex justify-between'>
           <div className='shrink-0 grow mr-6'>
             <input

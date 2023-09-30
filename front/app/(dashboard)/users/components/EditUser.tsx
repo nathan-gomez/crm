@@ -1,8 +1,9 @@
 import ChevronDownIcon from '@/icons/ChevronDownIcon';
+import LoadingIcon from '@/icons/LoadingIcon';
 import { RolesResponse, UsersResponse } from '@/models/ApiResponse';
 import notificationStore from '@/store/notificationStore';
 import getErrorMessage from '@/utils/errorHandler';
-import { FormEvent, useRef } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 
 type Props = {
   roles: RolesResponse[];
@@ -15,9 +16,11 @@ export default function EditUser({ roles, selectedUser, getUsers, closeModal }: 
   const updateNotification = notificationStore((state) => state.actions.updateNotification);
   const usernameRef = useRef<HTMLInputElement>(null);
   const roleRef = useRef<HTMLSelectElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
     //TODO: validation for same value inputs
     const params = {
@@ -46,6 +49,8 @@ export default function EditUser({ roles, selectedUser, getUsers, closeModal }: 
       }
     } catch (error) {
       updateNotification({ message: getErrorMessage(error), type: 'error' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,8 +97,14 @@ export default function EditUser({ roles, selectedUser, getUsers, closeModal }: 
         <button className='ml-auto hover-btn secondary-btn' onClick={closeModal} type='button'>
           Cancelar
         </button>
-        <button className='ml-2 primary-btn hover-btn' type='submit'>
-          Guardar
+        <button className='ml-2 primary-btn hover-btn flex items-center' type='submit'>
+          {!isLoading ? (
+            'Guardar'
+          ) : (
+            <>
+              Cargando <LoadingIcon className='h-6 ml-2' />
+            </>
+          )}
         </button>
       </div>
     </form>

@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const hasToken = request.cookies.has('session_token');
   const { pathname } = request.nextUrl;
-
   if (!hasToken) {
     if (pathname.startsWith('/login')) {
       return NextResponse.next();

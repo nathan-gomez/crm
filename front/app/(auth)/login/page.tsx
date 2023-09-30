@@ -4,7 +4,7 @@ import LoginForm from './LoginForm';
 
 export default function Login() {
   return (
-    <div className='py-12 h-full px-8 max-w-6xl mx-auto'>
+    <div className='py-12 h-full px-8 max-w-7xl mx-auto'>
       <div className='flex h-full items-center rounded border-[1px] shadow-sm max-w-2xl mx-auto xl:max-w-full'>
         <div className='relative hidden basis-1/2 items-center justify-center xl:flex'>
           <Image
