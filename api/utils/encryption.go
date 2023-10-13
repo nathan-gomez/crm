@@ -5,62 +5,83 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 )
 
-func EncryptValue(message string) (string, error) {
+func EncryptValue(text string) (string, error) {
 	EncryptionKey, hasValue := os.LookupEnv("ENCRYPTION_KEY")
 	if !hasValue {
 		return "", fmt.Errorf("env ENCRYPTION_KEY not defined")
 	}
 
-	byteMsg := []byte(message)
-
-	aesBlock, err := aes.NewCipher([]byte(EncryptionKey))
+  byteKey, err := base64.StdEncoding.DecodeString(EncryptionKey)
 	if err != nil {
-		return "", fmt.Errorf("could not create new cipher: %v", err)
+		return "", err
 	}
 
-	cipherText := make([]byte, aes.BlockSize+len(byteMsg))
+	byteText := []byte(text)
 
-	iv := cipherText[:aes.BlockSize]
-	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
-		return "", fmt.Errorf("could not encrypt: %v", err)
+	block, err := aes.NewCipher(byteKey)
+	if err != nil {
+		return "", err
 	}
 
-	stream := cipher.NewCFBEncrypter(aesBlock, iv)
-	stream.XORKeyStream(cipherText[aes.BlockSize:], byteMsg)
+	nonce := make([]byte, 12) // Nonce size for GCM is always 12 bytes
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
 
-	return base64.StdEncoding.EncodeToString(cipherText), nil
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	ciphertext := aesgcm.Seal(nil, nonce, byteText, nil)
+	combinedMessage := append(nonce, ciphertext...)
+
+	return base64.StdEncoding.EncodeToString(combinedMessage), nil
 }
 
-func DecryptValue(message string) (string, error) {
+func DecryptValue(encryptedString string) (string, error) {
 	EncryptionKey, hasValue := os.LookupEnv("ENCRYPTION_KEY")
 	if !hasValue {
 		return "", fmt.Errorf("env ENCRYPTION_KEY not defined")
 	}
 
-	cipherText, err := base64.StdEncoding.DecodeString(message)
+  byteKey, err := base64.StdEncoding.DecodeString(EncryptionKey)
 	if err != nil {
-		return "", fmt.Errorf("could not base64 decode: %v", err)
+		return "", err
 	}
 
-	block, err := aes.NewCipher([]byte(EncryptionKey))
+	combinedMessage, err := base64.StdEncoding.DecodeString(encryptedString)
 	if err != nil {
-		return "", fmt.Errorf("could not create new cipher: %v", err)
+		return "", err
 	}
 
-	if len(cipherText) < aes.BlockSize {
-		return "", fmt.Errorf("invalid ciphertext block size")
+	block, err := aes.NewCipher(byteKey)
+	if err != nil {
+		return "", err
 	}
 
-	iv := cipherText[:aes.BlockSize]
-	cipherText = cipherText[aes.BlockSize:]
+	if len(combinedMessage) < 12+aes.BlockSize {
+		return "", errors.New("ciphertext too short")
+	}
 
-	stream := cipher.NewCFBDecrypter(block, iv)
-	stream.XORKeyStream(cipherText, cipherText)
+	nonce := combinedMessage[:12]
+	ciphertext := combinedMessage[12:]
 
-	return string(cipherText), nil
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
 }
