@@ -2,9 +2,9 @@
 
 import LoadingModal from '@/components/LoadingModal';
 import Modal from '@/components/Modal';
-import debounce from '@/lib/debounce';
 import { ClientResponse } from '@/models/ApiResponse';
 import notificationStore from '@/store/notificationStore';
+import debounce from '@/utils/debounce';
 import getErrorMessage from '@/utils/errorHandler';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -52,6 +52,7 @@ export default function ClientsList() {
 
       if (!response.ok) {
         updateNotification({ message: 'Ocurrió un error al buscar los clientes', type: 'error' });
+        return;
       }
 
       const data = await response.json();

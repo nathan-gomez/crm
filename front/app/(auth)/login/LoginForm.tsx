@@ -44,6 +44,8 @@ export default function LoginForm() {
         body: JSON.stringify(params),
       });
 
+      let data: DefaultResponse;
+
       switch (response.status) {
         case 204:
           setError('No se encontró un usuario con ese nombre.');
@@ -54,18 +56,19 @@ export default function LoginForm() {
           setIsLoading(false);
           return;
         case 200:
-          const data: DefaultResponse = await response.json();
+          data = await response.json();
+          if ('message' in data && data.message === 'OK') {
+            router.replace('/');
+          }
+          return;
+        case 500:
+          data = await response.json();
           if ('error' in data) {
             setError(data.error);
             updateNotification({ message: data.error, type: 'error' });
             setIsLoading(false);
             return;
           }
-
-          if (data.message === 'OK') {
-            router.replace('/');
-          }
-          return;
       }
     } catch (error) {
       updateNotification({ message: getErrorMessage(error), type: 'error' });

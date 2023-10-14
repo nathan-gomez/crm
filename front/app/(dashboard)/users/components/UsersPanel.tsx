@@ -5,10 +5,10 @@ import Modal from '@/components/Modal';
 import AddUserIcon from '@/icons/AddUserIcon';
 import DeleteIcon from '@/icons/DeleteIcon';
 import EditIcon from '@/icons/EditIcon';
-import debounce from '@/lib/debounce';
 import { RolesResponse, UsersResponse } from '@/models/ApiResponse';
 import notificationStore from '@/store/notificationStore';
 import userStore from '@/store/userStore';
+import debounce from '@/utils/debounce';
 import getErrorMessage from '@/utils/errorHandler';
 import { AnimatePresence } from 'framer-motion';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
@@ -62,6 +62,7 @@ export default function UsersPanel({ roles }: Props) {
 
       if (!response.ok) {
         updateNotification({ message: 'Ocurrió un error al buscar los usuarios', type: 'error' });
+        return;
       }
 
       const data = await response.json();

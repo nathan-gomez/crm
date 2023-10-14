@@ -24,6 +24,7 @@ type Links = {
 const items: Links[] = [
   { icon: <HomeIcon className='h-6' />, label: 'Inicio', link: '/' },
   { icon: <ClientIcon className='h-6' />, label: 'Clientes', link: '/clientes' },
+  { icon: <ReportIcon className='h-6' />, label: 'Informes', link: '/informes' },
   { icon: <UsersIcon className='h-6' />, label: 'Usuarios', link: '/users', adminOnly: true },
   { icon: <SettingsIcon className='h-6' />, label: 'Ajustes', link: '/settings' },
 ];

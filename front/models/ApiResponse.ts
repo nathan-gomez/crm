@@ -25,3 +25,13 @@ export type ClientResponse = {
   nro_tel?: string;
   comentario?: string;
 };
+
+export type ClientFilesResponse = {
+  path: string;
+  uploadDate: string;
+}[];
+
+export type FileDownloadResponse = {
+  file: string;
+  type: string;
+};
