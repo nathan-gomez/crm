@@ -28,12 +28,13 @@ export default function ClientFiles({ fileList, getClientFiles, codigoCliente }:
   };
 
   const closeDocModal = () => {
-    setFile(null)
-    setDocCommentInput('')
+    setFile(null);
+    setDocCommentInput('');
     setShowDocModal(false);
   };
 
-  const docCommentInputHandler = (e: ChangeEvent<HTMLTextAreaElement>) => setDocCommentInput(e.target.value)
+  const docCommentInputHandler = (e: ChangeEvent<HTMLTextAreaElement>) =>
+    setDocCommentInput(e.target.value);
 
   const downloadFileHandler = async (path: string) => {
     setLoading(true);
@@ -101,7 +102,7 @@ export default function ClientFiles({ fileList, getClientFiles, codigoCliente }:
         fileName: file.name,
         user: userName,
         codigoCliente,
-        comentario: docCommentInput?.trim()
+        comentario: docCommentInput?.trim(),
       };
 
       const response = await fetch(url, {
@@ -119,7 +120,7 @@ export default function ClientFiles({ fileList, getClientFiles, codigoCliente }:
           type: 'success',
         });
         await getClientFiles();
-        closeDocModal()
+        closeDocModal();
         return;
       }
     } catch (err) {
@@ -170,7 +171,10 @@ export default function ClientFiles({ fileList, getClientFiles, codigoCliente }:
         {showDocModal && (
           <Modal closeModal={closeDocModal} title='Nuevo Documento'>
             <form onSubmit={uploadFileHandler}>
-              <label htmlFor='new-file' autoFocus className='cursor-pointer primary-btn max-w-sm mx-auto hover-btn block text-center border'>
+              <label
+                htmlFor='new-file'
+                autoFocus
+                className='cursor-pointer primary-btn max-w-sm mx-auto hover-btn block text-center border'>
                 Añadir
               </label>
               <input type='file' id='new-file' className='hidden' onChange={handleFileChange} />
@@ -184,13 +188,19 @@ export default function ClientFiles({ fileList, getClientFiles, codigoCliente }:
                   rows={5}
                   onChange={docCommentInputHandler}
                   value={docCommentInput}
-                  className='w-full bg-gray-100 rounded border p-2' />
+                  className='w-full bg-gray-100 rounded border p-2'
+                />
               </div>
               <div className='flex justify-end mt-2'>
-                <button className='hover-btn secondary-btn mr-2' type='button' onClick={closeDocModal}>
+                <button
+                  className='hover-btn secondary-btn mr-2'
+                  type='button'
+                  onClick={closeDocModal}>
                   Cancelar
                 </button>
-                <button className='hover-btn primary-btn' type='submit'>Guardar</button>
+                <button className='hover-btn primary-btn' type='submit'>
+                  Guardar
+                </button>
               </div>
             </form>
           </Modal>
