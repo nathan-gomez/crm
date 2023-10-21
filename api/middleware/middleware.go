@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -28,6 +28,7 @@ func ValidateSession() gin.HandlerFunc {
 		if err != nil {
 			ctx.Header("error", "Invalid or missing session token")
 			ctx.AbortWithStatus(http.StatusUnauthorized)
+			slog.Error("Invalid or missing session token")
 			return
 		}
 
@@ -37,6 +38,7 @@ func ValidateSession() gin.HandlerFunc {
 				http.StatusInternalServerError,
 				&models.ErrorResponse{Error: err.Error()},
 			)
+			slog.Error(err.Error())
 			return
 		}
 
@@ -55,6 +57,7 @@ func ValidateSession() gin.HandlerFunc {
 				http.StatusInternalServerError,
 				&models.ErrorResponse{Error: err.Error()},
 			)
+			slog.Error(err.Error())
 			return
 		}
 
@@ -67,6 +70,7 @@ func ValidateSession() gin.HandlerFunc {
 					http.StatusInternalServerError,
 					&models.ErrorResponse{Error: err.Error()},
 				)
+				slog.Error(err.Error())
 				return
 			}
 
@@ -86,7 +90,7 @@ func ValidateApiKey() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ApiKey, hasValue := os.LookupEnv("API_KEY")
 		if !hasValue {
-			log.Fatalf("API_KEY not defined")
+      slog.Error("API_KEY not defined")
 		}
 
 		reqKey := ctx.GetHeader("x-api-key")

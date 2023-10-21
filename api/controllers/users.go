@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -49,12 +50,14 @@ func Login(ctx *gin.Context) {
 			ctx.AbortWithStatus(http.StatusNoContent)
 			return
 		}
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(loginUser.Password), []byte(req.Password))
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusUnauthorized,
 			&models.ErrorResponse{Error: "Invalid password"},
@@ -69,6 +72,7 @@ func Login(ctx *gin.Context) {
 	args = pgx.NamedArgs{"sessionId": session.Id, "userId": loginUser.Id, "expiration": session.Expiration}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -78,6 +82,7 @@ func Login(ctx *gin.Context) {
 
 	encryptedSessionId, err := utils.EncryptValue(session.Id)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -109,6 +114,7 @@ func Logout(ctx *gin.Context) {
 	args := &pgx.NamedArgs{"sessionId": &token}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -149,6 +155,7 @@ func CreateUser(ctx *gin.Context) {
 	args = pgx.NamedArgs{"userId": &currentUser.Id}
 	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Role)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -167,6 +174,7 @@ func CreateUser(ctx *gin.Context) {
 	args = pgx.NamedArgs{"username": req.Username}
 	err = conn.QueryRow(context.Background(), sql, args).Scan(&counter)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -181,6 +189,7 @@ func CreateUser(ctx *gin.Context) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(([]byte(req.Password)), 8)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -193,6 +202,7 @@ func CreateUser(ctx *gin.Context) {
 	args = pgx.NamedArgs{"username": req.Username, "password": req.Password, "role": req.Role}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -227,6 +237,7 @@ func UserData(ctx *gin.Context) {
 	args = pgx.NamedArgs{"sessionId": sessionId}
 	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Username, &currentUser.Role)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -253,6 +264,7 @@ func GetRoles(ctx *gin.Context) {
 	sql = "SELECT id, role FROM roles;"
 	rows, err := conn.Query(context.Background(), sql)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -260,6 +272,7 @@ func GetRoles(ctx *gin.Context) {
 
 	roles, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Role])
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -289,6 +302,7 @@ func DeleteUser(ctx *gin.Context) {
 	args = pgx.NamedArgs{"userId": &currentUser.Id}
 	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Role)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -306,6 +320,7 @@ func DeleteUser(ctx *gin.Context) {
 	args = pgx.NamedArgs{"userId": &userId}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -340,6 +355,7 @@ func GetUsers(ctx *gin.Context) {
 	sql = "select id, username, role, created_at from users;"
 	rows, err := conn.Query(context.Background(), sql)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -350,6 +366,7 @@ func GetUsers(ctx *gin.Context) {
 
 	users, err := pgx.CollectRows(rows, pgx.RowToStructByName[User])
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -385,6 +402,7 @@ func EditUser(ctx *gin.Context) {
 	args = pgx.NamedArgs{"userId": &currentUser.Id}
 	err = conn.QueryRow(context.Background(), sql, args).Scan(&currentUser.Role)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -401,6 +419,7 @@ func EditUser(ctx *gin.Context) {
   args = pgx.NamedArgs{"id": &req.Id, "username": &req.Username, "role": &req.Role}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},

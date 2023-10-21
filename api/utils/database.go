@@ -3,13 +3,12 @@ package utils
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 
 	"github.com/frederick-gomez/go-api/models"
 )
@@ -19,11 +18,6 @@ var DB *pgxpool.Pool
 
 func ConnectToDatabase() {
 	var err error
-
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading env file")
-	}
 
 	connectionString := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
@@ -36,10 +30,9 @@ func ConnectToDatabase() {
 
 	dbpool, err := pgxpool.New(context.Background(), connectionString)
 	if err != nil {
-		log.Fatalf("Unable to create connection pool: %v\n", err)
+		slog.Error(fmt.Sprintf("Unable to create connection pool: %v\n", err))
 	}
 
-  log.Printf("Connection to database successful in %v", connectionString)
 	DB = dbpool
 }
 
@@ -49,6 +42,7 @@ func GetConn(ctx *gin.Context) *pgxpool.Conn {
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
+    slog.Error(err.Error())
 		return nil
 	}
 

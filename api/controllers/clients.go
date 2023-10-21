@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,6 +41,7 @@ func AddClient(ctx *gin.Context) {
 	args = pgx.NamedArgs{"nombre": req.Nombre, "tipo": req.Tipo, "ruc": req.Ruc, "nro_tel": req.NroTel, "comentario": req.Comentario}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -77,6 +79,7 @@ func GetClient(ctx *gin.Context) {
 			ctx.AbortWithStatus(http.StatusNoContent)
 			return
 		}
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -107,9 +110,10 @@ func UpdateClient(ctx *gin.Context) {
 	defer conn.Release()
 
 	sql = "update clientes set nombre = @nombre, tipo = @tipo, ruc = @ruc, nro_tel = @nroTel, comentario = @comentario where id = @id;"
-  args = pgx.NamedArgs{"id": &req.Id, "nombre": &req.Nombre, "tipo": &req.Tipo, "ruc": &req.Ruc, "nroTel": &req.NroTel, "comentario": &req.Comentario}
+	args = pgx.NamedArgs{"id": &req.Id, "nombre": &req.Nombre, "tipo": &req.Tipo, "ruc": &req.Ruc, "nroTel": &req.NroTel, "comentario": &req.Comentario}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
@@ -137,6 +141,7 @@ func GetAllClients(ctx *gin.Context) {
 	sql = "SELECT id, nombre FROM clientes order by id desc;"
 	rows, err := conn.Query(context.Background(), sql)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -144,6 +149,7 @@ func GetAllClients(ctx *gin.Context) {
 
 	clients, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.ClientsResponse])
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -172,6 +178,7 @@ func DeleteClient(ctx *gin.Context) {
 	args = pgx.NamedArgs{"clientId": &clientId}
 	_, err = conn.Exec(context.Background(), sql, args)
 	if err != nil {
+		slog.Error(err.Error())
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			&models.ErrorResponse{Error: err.Error()},
